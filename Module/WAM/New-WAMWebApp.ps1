@@ -1,7 +1,7 @@
 function Add-WAMAppUri {
 <#
     .SYNOPSIS
-
+    Adds a URL to the
 
     .DESCRIPTION
 
@@ -50,6 +50,7 @@ function Add-WAMAppUri {
 
         [Parameter()]
         [pscredential]$Credential
+
     )
 
     begin {
@@ -57,9 +58,11 @@ function Add-WAMAppUri {
     }
     process {
 
+
     }
     end {
 
     }
 
 }
+Invoke-WebRequest -Uri
