@@ -19,3 +19,22 @@ CREATE TABLE [dbo].[headers](
 CREATE TABLE [dbo].[apptests](
 
 )
+
+
+CREATE TABLE [dbo].[notification](
+    [webapp_id] [int] NOT NULL,
+    [header_key] [nvarchar(100)] NULL,
+    [header_value] [nvarchar(100)] NULL
+)
+
+CREATE TABLE [dbo].[config](
+    [webapp_id] [int] NOT NULL,
+    [header_key] [nvarchar(100)] NULL,
+    [header_value] [nvarchar(100)] NULL
+)
+
+CREATE TABLE [dbo].[configkey](
+    [webapp_id] [int] NOT NULL,
+    [header_key] [nvarchar(100)] NULL,
+    [header_value] [nvarchar(100)] NULL
+)
