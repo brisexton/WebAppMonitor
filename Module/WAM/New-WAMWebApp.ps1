@@ -1,4 +1,4 @@
-function Add-WAMAppUri {
+function Add-WAMWebApp {
 <#
     .SYNOPSIS
     Adds a URL to the
