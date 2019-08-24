@@ -6,8 +6,8 @@ function Add-WAMWebApp {
     .DESCRIPTION
 
 
-    .PARAMETER Uri
-    The URI to monitor.
+    .PARAMETER Url
+    The URL to monitor.
 
     .PARAMETER StatusCode
     The HTTP status code that should be returned.
@@ -38,7 +38,7 @@ function Add-WAMWebApp {
     param (
 
         [Parameter(Mandatory)]
-        [string]$Uri,
+        [string]$Url,
 
 
 
