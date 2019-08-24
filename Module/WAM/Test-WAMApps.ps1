@@ -1,3 +1,4 @@
+
 function Test-WAMApps.ps1 {
 <#
     .SYNOPSIS
@@ -39,3 +40,11 @@ function Test-WAMApps.ps1 {
     end {
     }
 }
+        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+
+        $headers.Add("$HeaderKey", "$HeaderValue")
+
+        $headers.Add("X-Cisco-Meraki-API-Key", "$APIKey")
+        $headers.Add("Content-Type", "application/json")
+
+        Invoke-RestMethod -uri $uri -Method Get -Headers $headers
