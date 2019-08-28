@@ -1,4 +1,4 @@
-function Add-WAMWebApp {
+function New-WAMWebApp {
 <#
     .SYNOPSIS
     Adds a URL to the
@@ -11,6 +11,9 @@ function Add-WAMWebApp {
 
     .PARAMETER StatusCode
     The HTTP status code that should be returned.
+
+    .PARAMETER IsMonitored
+    Set's the URL If you want set the URL to be monitored. Use this switch.
 
     .PARAMETER DatabaseInstance
     The Instance of SQL Server where the database is located.
@@ -45,6 +48,9 @@ function Add-WAMWebApp {
         [Parameter(Mandatory)]
         [int]$StatusCode,
 
+        [Parameter()]
+        [switch]$IsMonitored,
+
         [Parameter(Mandatory)]
         [string]$DatabaseInstance,
 
@@ -57,6 +63,14 @@ function Add-WAMWebApp {
 
     }
     process {
+
+        if($PSBoundParameters.ContainsKey($IsMonitored)) {
+            $MonitorState = 1
+        } else {
+            $MonitorState = 0
+        }
+
+
 
 
     }
