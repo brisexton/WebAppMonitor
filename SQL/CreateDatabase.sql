@@ -1,1 +1,2 @@
-CREATE DATABASE WebAppMonitor;
+CREATE DATABASE WebAppMonitor
+GO
