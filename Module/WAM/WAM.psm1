@@ -16,5 +16,5 @@
 . $PSScriptRoot\Remove-WAMWebApp.ps1
 . $PSScriptRoot\Test-WAMApps.ps1
 . $PSScriptRoot\Update-WAMLog.ps1
-. $PSScriptRoot\Send-WAMEmailNotification.ps1
+. $PSScriptRoot\Send-WAMNotification.ps1
 . $PSScriptRoot\Register-WAMScheduledTask.ps1
