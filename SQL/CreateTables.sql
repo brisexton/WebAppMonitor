@@ -40,12 +40,9 @@ CREATE TABLE [dbo].[notification](
 )
 GO
 
-CREATE SCHEMA config;
-GO
-
-CREATE TABLE [config].[email](
-    [emailwebapp_id] [int] NOT NULL,
-    [header_key] [nvarchar(100)] NULL,
+CREATE TABLE [dbo].[emailconfig](
+    [emailsettings_id] [int] NOT NULL,
+    [port] [int] NULL,
     [header_value] [nvarchar(100)] NULL
 )
 GO
