@@ -1,3 +1,4 @@
+#requires -modules SqlServer
 <#
 
     WebAppMonitor PowerShell Module
@@ -7,7 +8,7 @@
 
 
 #>
-
+Import-Module SqlServer
 
 . $PSScriptRoot\Install-WAMDatabase.ps1
 . $PSScriptRoot\Get-WAMWebApp.ps1
