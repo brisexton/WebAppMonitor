@@ -12,18 +12,23 @@ GO
 
 CREATE TABLE [dbo].[headers](
     [webapp_id] [int] NOT NULL,
+    [order] [int] NULL,
     [header_key] [nvarchar(100)] NULL,
     [header_value] [nvarchar(100)] NULL
 )
 
-CREATE TABLE [dbo].[apptests](
 
+
+CREATE TABLE [dbo].[apptests](
+    [test_id] [int] NOT NULL,
+    [webapp_id] [int] NOT NULL,
+    [status_code] [int] NOT NULL,
 )
 
 
 CREATE TABLE [dbo].[notification](
     [webapp_id] [int] NOT NULL,
-    [header_key] [nvarchar(100)] NULL,
+    [notification_type] [nvarchar(100)] NULL,
     [header_value] [nvarchar(100)] NULL
 )
 
