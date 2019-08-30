@@ -50,8 +50,6 @@ function Install-WAMDatabase {
 
     begin {
 
-        $SQLServerModules = Get-Module -ListAvailable | Where-Object {$_.Name -eq 'SQLPS' -or $_.Name -eq 'SqlServer'}
-
     }
     process {
 
