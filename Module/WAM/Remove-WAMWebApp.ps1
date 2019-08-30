@@ -1,7 +1,7 @@
 function Remove-WAMWebApp {
 <#
     .SYNOPSIS
-    Removes a site from the database
+    Removes a site from the database.
 
     .DESCRIPTION
 
@@ -30,4 +30,14 @@ function Remove-WAMWebApp {
 
 
     )
+
+    begin {
+
+    }
+    process {
+
+    }
+    end {
+
+    }
 }
