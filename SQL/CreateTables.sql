@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[headers](
     [header_key] [nvarchar(100)] NULL,
     [header_value] [nvarchar(100)] NULL
 )
-
+GO
 
 
 CREATE TABLE [dbo].[apptests](
@@ -24,22 +24,26 @@ CREATE TABLE [dbo].[apptests](
     [webapp_id] [int] NOT NULL,
     [status_code] [int] NOT NULL,
 )
+GO
 
+CREATE TABLE [dbo].[notify_type](
+    [notifytype_id] [int] NOT NULL,
+    [name] [nvarchar(10)] NOT NULL,
+    [description] [nvarchar(100)] NULL
+)
 
 CREATE TABLE [dbo].[notification](
     [webapp_id] [int] NOT NULL,
     [notification_type] [nvarchar(100)] NULL,
-    [header_value] [nvarchar(100)] NULL
+    [notification_message] [nvarchar(100)] NULL
 )
+GO
 
-CREATE TABLE [dbo].[config](
-    [webapp_id] [int] NOT NULL,
-    [header_key] [nvarchar(100)] NULL,
-    [header_value] [nvarchar(100)] NULL
-)
+CREATE SCHEMA config;
+GO
 
-CREATE TABLE [dbo].[configkey](
-    [webapp_id] [int] NOT NULL,
+CREATE TABLE [config].[email](
+    [emailwebapp_id] [int] NOT NULL,
     [header_key] [nvarchar(100)] NULL,
     [header_value] [nvarchar(100)] NULL
 )
