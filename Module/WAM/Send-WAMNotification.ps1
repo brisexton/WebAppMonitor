@@ -29,9 +29,8 @@ function Send-WAMNotification {
     [CmdletBinding()]
     param(
 
-        [Parameter(Mandatory)]
-        [ValidateSet('PROD','TEST','DEV')]
-        [string]
+
+
     )
 
     begin {
