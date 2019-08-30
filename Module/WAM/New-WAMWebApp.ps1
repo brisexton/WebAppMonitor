@@ -41,9 +41,15 @@ function New-WAMWebApp {
     param (
 
         [Parameter(Mandatory)]
+        [ValidateLength(1,50)]
+        [string]$Name,
+
+        [Parameter()]
+        [ValidateLength(1,160)]
+        [string]$Description,
+
+        [Parameter(Mandatory)]
         [string]$Url,
-
-
 
         [Parameter(Mandatory)]
         [int]$StatusCode,
