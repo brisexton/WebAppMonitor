@@ -8,7 +8,7 @@
 
 
 #>
-Import-Module -Name SqlServer -AllowClobber -DisableNameChecking
+Import-Module -Name SqlServer -DisableNameChecking
 
 . $PSScriptRoot\Install-WAMDatabase.ps1
 . $PSScriptRoot\Get-WAMWebApp.ps1
