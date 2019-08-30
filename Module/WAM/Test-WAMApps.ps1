@@ -1,5 +1,4 @@
-
-function Test-WAMApps.ps1 {
+function Test-WAMApps {
 <#
     .SYNOPSIS
     Runs tests against the URL's provided.
@@ -32,14 +31,11 @@ function Test-WAMApps.ps1 {
     )
 
     begin {
+
     }
 
     process {
-    }
 
-    end {
-    }
-}
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
         $headers.Add("$HeaderKey", "$HeaderValue")
@@ -48,3 +44,9 @@ function Test-WAMApps.ps1 {
         $headers.Add("Content-Type", "application/json")
 
         Invoke-RestMethod -uri $uri -Method Get -Headers $headers
+
+    }
+
+    end {
+    }
+}
