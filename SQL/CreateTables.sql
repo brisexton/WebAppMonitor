@@ -31,6 +31,7 @@ CREATE TABLE [dbo].[notify_type](
     [name] [nvarchar(10)] NOT NULL,
     [description] [nvarchar(100)] NULL
 )
+GO
 
 CREATE TABLE [dbo].[notification](
     [webapp_id] [int] NOT NULL,
@@ -47,3 +48,4 @@ CREATE TABLE [config].[email](
     [header_key] [nvarchar(100)] NULL,
     [header_value] [nvarchar(100)] NULL
 )
+GO
