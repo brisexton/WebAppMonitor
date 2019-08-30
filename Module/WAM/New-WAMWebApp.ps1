@@ -1,7 +1,7 @@
 function New-WAMWebApp {
 <#
     .SYNOPSIS
-    Adds a URL to the
+    Adds a URL to the database to be monitored.
 
     .DESCRIPTION
 
@@ -37,7 +37,8 @@ function New-WAMWebApp {
     .NOTES
 
 
-#>  [CmdletBinding()]
+#>
+    [CmdletBinding()]
     param (
 
         [Parameter(Mandatory)]
@@ -49,10 +50,18 @@ function New-WAMWebApp {
         [string]$Description,
 
         [Parameter(Mandatory)]
+        [ValidatePattern("^http")]
         [string]$Url,
 
         [Parameter(Mandatory)]
         [int]$StatusCode,
+
+        [Parameter()]
+        [ValidateSet("GET","HEAD","POST","PUT","TRACE")]
+        [string]$Method = "GET",
+
+        [Parameter()]
+        [string]$ContentType,
 
         [Parameter()]
         [switch]$IsMonitored,
@@ -70,13 +79,40 @@ function New-WAMWebApp {
     }
     process {
 
+
+
         if($PSBoundParameters.ContainsKey($IsMonitored)) {
             $MonitorState = 1
         } else {
             $MonitorState = 0
         }
 
+        $SQLQuery = "CREATE DATABASE $DatabaseName"
 
+        if ($PSBoundParameters.ContainsKey($Credential))
+        {
+
+            try {
+                Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -Credential $Credential -ErrorAction Stop
+            }
+            catch {
+                Write-Host "Failed to Create Database" -ForegroundColor Red
+                $Error[0]
+            }
+        }
+        else
+        {
+
+            try {
+                Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -ErrorAction Stop
+            }
+            catch {
+                Write-Host "Failed to Create Database" -ForegroundColor Red
+                $Error[0]
+            }
+        }
 
 
     }
@@ -85,4 +121,3 @@ function New-WAMWebApp {
     }
 
 }
-Invoke-WebRequest -Uri
