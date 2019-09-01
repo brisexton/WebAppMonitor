@@ -23,10 +23,18 @@ CREATE TABLE [dbo].[apptests](
     [test_id] [int] NOT NULL,
     [webapp_id] [int] NOT NULL,
     [status_code] [int] NOT NULL,
-    [test_time] [datetime] NOT NULL,
-    [failure] [bit] NOT NULL
+    [method] [char](7) NOT NULL,
+    [post_body] [text] NULL
+
 )
 GO
+
+CREATE TABLE [dbo].[apptestresults](
+    [webapp_id] [int] NOT NULL,
+    [start_time] [datetime] NOT NULL,
+    [end_time] [datetime] NULL,
+    [failure] [bit] NOT NULL
+)
 
 CREATE TABLE [dbo].[notify_type](
     [notifytype_id] [int] NOT NULL,
