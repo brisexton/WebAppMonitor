@@ -53,14 +53,16 @@ function Install-WAMDatabase {
     }
     process {
 
-        $SQLQuery = "CREATE DATABASE $DatabaseName"
+        $NewDatabaseStatement = "CREATE DATABASE $DatabaseName"
+
+
 
         if ($PSBoundParameters.ContainsKey($Credential))
         {
 
             try {
                 Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -Credential $Credential -ErrorAction Stop
             }
             catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
@@ -72,7 +74,7 @@ function Install-WAMDatabase {
 
             try {
                 Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -ErrorAction Stop
             }
             catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
