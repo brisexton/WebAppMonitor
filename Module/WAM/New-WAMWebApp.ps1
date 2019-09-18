@@ -15,7 +15,11 @@ function New-WAMWebApp {
     .PARAMETER IsMonitored
     Set's the URL If you want set the URL to be monitored. Use this switch.
 
-    .PARAMETER DatabaseInstance
+    .PARAMETER Database
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
     The Instance of SQL Server where the database is located.
 
     .PARAMETER Credential
@@ -66,8 +70,11 @@ function New-WAMWebApp {
         [Parameter()]
         [switch]$IsMonitored,
 
+        [Parameter()]
+        [string]$Database = "WebAppMonitor",
+
         [Parameter(Mandatory)]
-        [string]$DatabaseInstance,
+        [string]$ServerInstance,
 
         [Parameter()]
         [pscredential]$Credential
@@ -93,7 +100,7 @@ function New-WAMWebApp {
         {
 
             try {
-                Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
+                Write-Verbose "Attempting to add information for $Name to the database $Database on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -Credential $Credential -ErrorAction Stop
             }
             catch {
