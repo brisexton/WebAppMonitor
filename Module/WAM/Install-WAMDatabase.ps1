@@ -55,7 +55,9 @@ function Install-WAMDatabase {
 
         $NewDatabaseStatement = "CREATE DATABASE $DatabaseName"
 
+        $NewDatabaseTables = @"
 
+"@
 
         if ($PSBoundParameters.ContainsKey($Credential))
         {
