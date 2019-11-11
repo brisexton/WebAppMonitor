@@ -52,10 +52,10 @@ function Get-WAMWebApp {
         [Parameter()]
         [string]$DatabaseName = 'WebAppMonitor',
 
-        [Parameter()]
+        [Parameter(ParameterSetName = "Name")]
         [string]$Name,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = "Active")]
         [switch]$Active,
 
         [parameter()]
@@ -68,6 +68,34 @@ function Get-WAMWebApp {
     }
     process {
 
+
+
+
+        if ($PSBoundParameters.ContainsKey($Active)) {
+            $sqlQuery = 'SELECT * FROM [dbo].[appinfo] WHERE monitor_active = TRUE'
+        } elseif ($PSBoundParameters.ContainsKey($Name)) {
+            $sqlQuery = "SELECT * FROM [dbo].[appinfo] WHERE name LIKE %$Name%"
+        } else {
+            $sqlQuery = 'SELECT * FROM [dbo].[appinfo]'
+        }
+
+        if ($PSBoundParameters.ContainsKey($Credential)) {
+            try {
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with sql creds"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Credential $Credential -OutputAs DataRows -ErrorAction Stop
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        } else {
+            try {
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -ErrorAction Stop
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        }
     }
     end {
 
