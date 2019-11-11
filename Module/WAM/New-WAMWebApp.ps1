@@ -74,6 +74,9 @@ function New-WAMWebApp {
         [string]$ContentType,
 
         [Parameter()]
+        [string]$PostBody,
+
+        [Parameter()]
         [switch]$IsMonitored,
 
         [Parameter()]
@@ -107,14 +110,24 @@ function New-WAMWebApp {
         ($Name, $Description, `'$Url`', $MonitorState)
 "@
 
+        $AppTestInfo = @"
+    INSERT INTO dbo.apptests
+        (webapp_id, status_code, method, post_body)
+     VALUES
+        ($webappid, $StatusCode, $Method, $PostBody)
+"@
+
         if ($PSBoundParameters.ContainsKey($Credential)) {
 
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
+                Write-Verbose "Attempting to save expected test results for web app $Name"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
             } catch {
-                Write-Host "Failed to Create Database" -ForegroundColor Red
+                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
             }
         } else {
@@ -122,19 +135,17 @@ function New-WAMWebApp {
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
+                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
+                Write-Verbose "Attempting to save expected test results for web app $Name"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -ErrorAction Stop
             } catch {
-                Write-Host "Failed to Create Database" -ForegroundColor Red
+                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
             }
         }
 
-        $BasicAppInfo = @"
-    INSERT INTO dbo.apptests
-        (webapp_id, status_code, method, post_body)
-     VALUES
-        ($webapp_id, $Description, `'$Url`', $MonitorState)
-"@
+
 
 
 
