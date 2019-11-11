@@ -1,7 +1,7 @@
 USE [WebAppMonitor]
 GO
 
-/****** Object:  View [dbo].[appinfo]    Script Date: 11/11/2019 12:05:39 AM ******/
+/****** Object:  View [dbo].[appinfo]    Script Date: 11/11/2019 12:19:53 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,9 +10,9 @@ GO
 
 CREATE VIEW [dbo].[appinfo]
 AS
-    SELECT dbo.apptests.status_code, dbo.apptests.method, dbo.apptests.post_body, dbo.webapps.*
-    FROM dbo.webapps INNER JOIN
-        dbo.apptests ON dbo.webapps.webapp_id = dbo.apptests.webapp_id
+   SELECT dbo.webapps.*, dbo.apptests.status_code, dbo.apptests.method, dbo.apptests.post_body
+   FROM dbo.webapps INNER JOIN
+      dbo.apptests ON dbo.webapps.webapp_id = dbo.apptests.webapp_id
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
