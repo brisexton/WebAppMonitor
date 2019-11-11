@@ -100,7 +100,7 @@ function New-WAMWebApp {
             $MonitorState = 0
         }
 
-        $SQLQuery = @"
+        $BasicAppInfo = @"
     INSERT INTO dbo.webapps
         (name, description, uri, monitor_active)
      VALUES
@@ -111,8 +111,8 @@ function New-WAMWebApp {
 
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $SQLQuery -Credential $Credential -ErrorAction Stop
-                $webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
             } catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
                 $Error[0]
@@ -121,20 +121,22 @@ function New-WAMWebApp {
 
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $SQLQuery -ErrorAction Stop
-                $webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
+                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
             } catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
                 $Error[0]
             }
         }
 
-        $SQLQuery = @"
-    INSERT INTO dbo.apptest
-        (name, description, uri, monitor_active)
+        $BasicAppInfo = @"
+    INSERT INTO dbo.apptests
+        (webapp_id, status_code, method, post_body)
      VALUES
-        ($Name, $Description, `'$Url`', $MonitorState)
+        ($webapp_id, $Description, `'$Url`', $MonitorState)
 "@
+
+
 
     }
     end {
