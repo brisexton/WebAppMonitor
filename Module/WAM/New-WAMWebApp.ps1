@@ -1,5 +1,5 @@
 function New-WAMWebApp {
-<#
+    <#
     .SYNOPSIS
     Adds a URL to the database to be monitored.
 
@@ -39,18 +39,24 @@ function New-WAMWebApp {
 
 
     .NOTES
+    Update
+    11/10/2019
+    Brian Sexton
 
+    Initial
+    8/20/2019
+    Brian Sexton
 
 #>
     [CmdletBinding()]
     param (
 
         [Parameter(Mandatory)]
-        [ValidateLength(1,50)]
+        [ValidateLength(1, 50)]
         [string]$Name,
 
         [Parameter()]
-        [ValidateLength(1,160)]
+        [ValidateLength(1, 160)]
         [string]$Description,
 
         [Parameter(Mandatory)]
@@ -61,7 +67,7 @@ function New-WAMWebApp {
         [int]$StatusCode,
 
         [Parameter()]
-        [ValidateSet("GET","HEAD","POST","PUT","TRACE")]
+        [ValidateSet("GET", "HEAD", "POST", "PUT", "TRACE")]
         [string]$Method = "GET",
 
         [Parameter()]
@@ -71,10 +77,10 @@ function New-WAMWebApp {
         [switch]$IsMonitored,
 
         [Parameter()]
-        [string]$Database = "WebAppMonitor",
+        [string]$DatabaseName = "WebAppMonitor",
 
-        [Parameter(Mandatory)]
-        [string]$ServerInstance,
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
         [pscredential]$Credential
@@ -88,39 +94,47 @@ function New-WAMWebApp {
 
 
 
-        if($PSBoundParameters.ContainsKey($IsMonitored)) {
+        if ($PSBoundParameters.ContainsKey($IsMonitored)) {
             $MonitorState = 1
         } else {
             $MonitorState = 0
         }
 
-        $SQLQuery = "CREATE DATABASE $DatabaseName"
+        $SQLQuery = @"
+    INSERT INTO dbo.webapps
+        (name, description, uri, monitor_active)
+     VALUES
+        ($Name, $Description, `'$Url`', $MonitorState)
+"@
 
-        if ($PSBoundParameters.ContainsKey($Credential))
-        {
+        if ($PSBoundParameters.ContainsKey($Credential)) {
 
             try {
-                Write-Verbose "Attempting to add information for $Name to the database $Database on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -Credential $Credential -ErrorAction Stop
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $SQLQuery -Credential $Credential -ErrorAction Stop
+                $webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
+            } catch {
+                Write-Host "Failed to Create Database" -ForegroundColor Red
+                $Error[0]
             }
-            catch {
+        } else {
+
+            try {
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $SQLQuery -ErrorAction Stop
+                $webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
+            } catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
                 $Error[0]
             }
         }
-        else
-        {
 
-            try {
-                Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $SQLQuery -ErrorAction Stop
-            }
-            catch {
-                Write-Host "Failed to Create Database" -ForegroundColor Red
-                $Error[0]
-            }
-        }
-
+        $SQLQuery = @"
+    INSERT INTO dbo.apptest
+        (name, description, uri, monitor_active)
+     VALUES
+        ($Name, $Description, `'$Url`', $MonitorState)
+"@
 
     }
     end {
