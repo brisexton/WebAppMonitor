@@ -18,6 +18,16 @@ function Install-WAMDatabase {
     SQL Login to connect to the Database Engine to create the Database.
 
     .EXAMPLE
+    Install-WAMDatabase
+
+    Creates database and tables on local default instance using Windows Authentication.
+
+    .EXAMPLE
+    $sqlCreds = Get-Credential
+    Install-WAMDatabase -ServerInstance 'SERVER1\INSTANCE1' -Credential $sqlCreds
+
+    This creates the database with the default name of WebAppMonitor and tables
+    on SQL Server Instance SERVER1\INSTANCE1 and connects with $sqlCreds
 
 
     .INPUTS
