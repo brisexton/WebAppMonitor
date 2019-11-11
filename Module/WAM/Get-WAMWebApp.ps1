@@ -47,7 +47,7 @@ function Get-WAMWebApp {
     param(
 
         [Parameter()]
-        [string]$ServerInstance,
+        [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
         [string]$DatabaseName = 'WebAppMonitor',
