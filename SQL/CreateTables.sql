@@ -1,17 +1,19 @@
 USE [WebAppMonitor]
 GO
 
-CREATE TABLE [dbo].[webapps](
-	[webapp_id] [int] IDENTITY(1,1) NOT NULL,
+CREATE TABLE [dbo].[webapps]
+(
+    [webapp_id] [int] IDENTITY(1,1) NOT NULL,
     [name] [nvarchar](50) NOT NULL,
     [description] [nvarchar](160) NULL,
-	[uri] [nvarchar](160) NOT NULL,
-	[monitor_active] [bit] NOT NULL
+    [uri] [nvarchar](160) NOT NULL,
+    [monitor_active] [bit] NOT NULL
 ) ON [PRIMARY]
 GO
 
 
-CREATE TABLE [dbo].[headers](
+CREATE TABLE [dbo].[headers]
+(
     [webapp_id] [int] NOT NULL,
     [header_key] [nvarchar](100) NULL,
     [header_value] [nvarchar](100) NULL
@@ -19,8 +21,9 @@ CREATE TABLE [dbo].[headers](
 GO
 
 
-CREATE TABLE [dbo].[apptests](
-    [test_id] [int] NOT NULL,
+CREATE TABLE [dbo].[apptests]
+(
+    [test_id] [int] IDENTITY(1,1) NOT NULL,
     [webapp_id] [int] NOT NULL,
     [status_code] [int] NOT NULL,
     [method] [char](7) NOT NULL,
@@ -29,21 +32,24 @@ CREATE TABLE [dbo].[apptests](
 )
 GO
 
-CREATE TABLE [dbo].[apptestresults](
+CREATE TABLE [dbo].[apptestresults]
+(
     [webapp_id] [int] NOT NULL,
     [start_time] [datetime] NOT NULL,
     [end_time] [datetime] NULL,
     [failure] [bit] NOT NULL
 )
 
-CREATE TABLE [dbo].[notify_type](
+CREATE TABLE [dbo].[notify_type]
+(
     [notifytype_id] [int] NOT NULL,
     [name] [nvarchar](10) NOT NULL,
     [description] [nvarchar](100) NULL
 )
 GO
 
-CREATE TABLE [dbo].[notification](
+CREATE TABLE [dbo].[notification]
+(
     [notification_id] [int] IDENTITY(1,1) NOT NULL,
     [webapp_id] [int] NOT NULL,
     [notification_type] [nvarchar](100) NULL,
@@ -51,7 +57,8 @@ CREATE TABLE [dbo].[notification](
 ) ON [PRIMARY]
 GO
 
-CREATE TABLE [dbo].[emailconfig](
+CREATE TABLE [dbo].[emailconfig]
+(
     [emailsettings_id] [int] NOT NULL,
     [from_address] [nvarchar](50) NOT NULL,
     [servername] [nvarchar](100) NOT NULL,
