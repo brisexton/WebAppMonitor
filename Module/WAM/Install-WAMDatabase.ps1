@@ -48,8 +48,8 @@ function Install-WAMDatabase {
     [CmdletBinding()]
     param(
 
-        [Parameter(Mandatory)]
-        [string]$ServerInstance,
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
         [string]$DatabaseName = "WebAppMonitor",
@@ -88,7 +88,7 @@ function Install-WAMDatabase {
 
 
         CREATE TABLE [dbo].[apptests](
-            [test_id] [int] NOT NULL,
+            [test_id] [int] IDENTITY(1,1) NOT NULL,
             [webapp_id] [int] NOT NULL,
             [status_code] [int] NOT NULL,
             [method] [char](7) NOT NULL,
