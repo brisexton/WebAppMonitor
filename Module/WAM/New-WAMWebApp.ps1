@@ -66,7 +66,7 @@ function New-WAMWebApp {
         [Parameter(Mandatory)]
         [int]$StatusCode,
 
-        [Parameter()]
+        [Parameter(Mandatory)]
         [ValidateSet("GET", "HEAD", "POST", "PUT", "TRACE")]
         [string]$Method = "GET",
 
@@ -102,6 +102,11 @@ function New-WAMWebApp {
         } else {
             $MonitorState = 0
         }
+
+        if (!($PSBoundParameters.ContainsKey($Description))) {
+            $Description = $null
+        }
+
 
         $BasicAppInfo = @"
     INSERT INTO dbo.webapps
