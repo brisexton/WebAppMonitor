@@ -128,6 +128,14 @@ function Install-WAMDatabase {
         )
         GO
 
+
+        CREATE VIEW [dbo].[appinfo]
+            AS
+                SELECT dbo.webapps.*, dbo.apptests.status_code, dbo.apptests.method, dbo.apptests.post_body
+                FROM dbo.webapps INNER JOIN
+                    dbo.apptests ON dbo.webapps.webapp_id = dbo.apptests.webapp_id
+        GO
+
 "@
 
         if ($PSBoundParameters.ContainsKey($Credential)) {
