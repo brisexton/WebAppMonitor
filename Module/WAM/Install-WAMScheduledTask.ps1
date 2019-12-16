@@ -35,8 +35,8 @@ function Install-WAMScheduledTask {
     Local User Credential on the server for the scheduled task to run as.
 
     .EXAMPLE
-    $cred = Get-Credential -Message "Enter Local User Creds"
-    Install-WAMScheduledTask -RuntimeFrequency 120 -InstallLocation C:\scripts\WAM -Credential $cred
+    $cred = Get-Credential -Message "Enter Local User Creds for unattended runs."
+    Install-WAMScheduledTask -RuntimeFrequency 120 -ScriptFilePath C:\scripts\WAMRuntime.ps1 -InstallLocation C:\scripts\WAM -Credential $cred
 
     This will set the scheduled task to execute every 2 minutes (120 seconds) with
     the WAM folder located in C:\scripts
@@ -95,9 +95,19 @@ function Install-WAMScheduledTask {
 
         $ExecutionFrequency = New-TimeSpan -Seconds $RuntimeFrequency
 
+        if (($PSBoundParameters.ContainsKey($PowerShellVersion))) {
+            switch ($PowerShellVersion) {
+                "WindowsPowerShell" { $psshellexecutable = "Powershell.exe"; break }
+                "PowerShellCore" { $psshellexecutable = "pwsh.exe"; break }
+                default { break }
+            }
+        }
+
+        $psshellexecutable = "Powershell.exe"
+
         $TaskTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval $ExecutionFrequency
         $TaskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -Compatibility Win8 -RunOnlyIfNetworkAvailable -StartWhenAvailable -DontStopOnIdleEnd -ExecutionTimeLimit $ExecutionFrequency
-        $TaskAction = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument `"$ScriptFilePath`" -WorkingDirectory `"$ModuleLocation`"
+        $TaskAction = New-ScheduledTaskAction -Execute $psshellexecutable -Argument `"$ScriptFilePath`" -WorkingDirectory `"$ModuleLocation`"
 
         $username = $Credential.UserName
         $password = $Credential.GetNetworkCredential().Password
