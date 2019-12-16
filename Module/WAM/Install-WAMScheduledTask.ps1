@@ -1,4 +1,6 @@
+#Requires -RunAsAdministrator
 function Install-WAMScheduledTask {
+
     <#
     .SYNOPSIS
     Registers a Scheduled Task in Task Scheduler to execute a script.
@@ -13,7 +15,7 @@ function Install-WAMScheduledTask {
     .PARAMETER RuntimeFrequency
     How often the scheduled task should run in seconds.
 
-    .PARAMETER InstallLocation
+    .PARAMETER ModuleLocation
     The full path to where the WAM folder is located. This is used to specify
     the working directory for the Scheduled Task.
 
@@ -54,7 +56,6 @@ function Install-WAMScheduledTask {
 
 #>
     [CmdletBinding()]
-
     param (
 
         [Parameter()]
@@ -64,7 +65,7 @@ function Install-WAMScheduledTask {
         [int]$RuntimeFrequency = 60,
 
         [Parameter(Mandatory)]
-        [string]$InstallLocation,
+        [string]$ModuleLocation,
 
         [Parameter(Mandatory)]
         [string]$ScriptFilePath,
@@ -83,11 +84,11 @@ function Install-WAMScheduledTask {
     }
     process {
 
-        $ExecutionFrequency = (New-TimeSpan -Seconds $RuntimeFrequency)
+        $ExecutionFrequency = New-TimeSpan -Seconds $RuntimeFrequency
 
-        $TaskTrigger = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(1)) -RepeatIndefinitely -RepetitionInterval $ExecutionFrequency
-        $TaskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable -DontStopOnIdleEnd
-        $TaskAction = New-ScheduledTaskAction –Execute "$pshome\powershell.exe" -Argument "$ScriptFile; quit" -WorkingDirectory $InstallLocation
+        $TaskTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval $ExecutionFrequency
+        $TaskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable -Compatibility Win8 -ExecutionTimeLimit $ExecutionFrequency
+        $TaskAction = New-ScheduledTaskAction –Execute "Powershell.exe" -Argument `"$ScriptFilePath`" -WorkingDirectory $ModuleLocation
 
         $username = $Credential.UserName
         $password = $Credential.GetNetworkCredential().Password
