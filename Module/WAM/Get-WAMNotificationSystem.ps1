@@ -7,8 +7,11 @@ function Get-WAMNotificationSystem {
     .DESCRIPTION
 
 
-    .PARAMETER
+    .PARAMETER Name
+    Friendly name for the notification/alerting system.
 
+    .PARAMETER SystemType
+    Valid options are either Email or SMS.
 
     .EXAMPLE
 
@@ -36,7 +39,7 @@ function Get-WAMNotificationSystem {
 
         [Parameter(Mandatory)]
         [ValidateSet('Email', 'SMS')]
-        [string]$NotificationType
+        [string]$SystemType
 
     )
 
