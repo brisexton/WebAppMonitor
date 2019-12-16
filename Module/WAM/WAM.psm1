@@ -36,6 +36,6 @@
 . $PSScriptRoot\Test-WAMNotification.ps1
 
 # Used during routine tests
-. $PSScriptRoot\Test-WAMApps.ps1
+. $PSScriptRoot\Test-WAMWebApp.ps1
 . $PSScriptRoot\Update-WAMLog.ps1
 . $PSScriptRoot\Send-WAMNotification.ps1

@@ -1,5 +1,5 @@
-function Test-WAMApps {
-<#
+function Test-WAMWebApp {
+    <#
     .SYNOPSIS
     Runs tests against the URL's provided.
 
