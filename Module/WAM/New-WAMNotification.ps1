@@ -1,13 +1,21 @@
 function New-WAMNotification {
 
-<#
+    <#
     .SYNOPSIS
-    Creates a notification system.
+    Adds a notification destination to the database.
 
     .DESCRIPTION
 
 
-    .PARAMETER
+    .PARAMETER Name
+    The name of the alert
+
+    .PARAMETER Description
+    A description or additional information about the alert destination.
+
+    .PARAMETER NotificationType
+    This establishes a link between the notification addresse and the
+    system to be used for sending the notification/alert.
 
 
     .EXAMPLE
@@ -23,7 +31,9 @@ function New-WAMNotification {
 
 
     .NOTES
-
+    Initial
+    11/12/2019
+    Brian Sexton
 
 #>
     [CmdletBinding()]
@@ -32,9 +42,11 @@ function New-WAMNotification {
         [Parameter(Mandatory)]
         [string]$Name,
 
+        [Parameter()]
+        [string]$Description,
 
         [Parameter(Mandatory)]
-        [ValidateSet('Email','SMS')]
+        [ValidateSet('Email', 'SMS')]
         [string]$NotificationType
     )
 
