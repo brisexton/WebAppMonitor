@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+#requires -RunAsAdministrator
 function Install-WAMScheduledTask {
 
     <#
@@ -22,8 +22,13 @@ function Install-WAMScheduledTask {
     .PARAMETER ScriptFilePath
     Full path to the script which contains all commands for automated runs.
 
+    .PARAMETER PowerShellVersion
+    NOT YET IMPLEMENTED - Valid options are WindowsPowerShell or PowerShellCore.
+    By specifiying what PS Host you want to use, this changes whether the scheduled
+    task get executed under Powershell.exe or pwsh.exe
+
     .PARAMETER TaskType
-    NOT YET IMPLEMENTED!! This is to used for specifying whether to use
+    NOT YET IMPLEMENTED - This is to used for specifying whether to use
     ScheduledJobs or ScheduledTasks. Currently it's using ScheduledTasks.
 
     .PARAMETER Credential
@@ -71,10 +76,14 @@ function Install-WAMScheduledTask {
         [string]$ScriptFilePath,
 
         [Parameter()]
-        [ValidateSet('ScheduledTask', 'ScheduledJobs')]
+        [ValidateSet('WindowsPowerShell', 'PowerShellCore')]
+        [string]$PowerShellVersion,
+
+        [Parameter()]
+        [ValidateSet('ScheduledTasks', 'ScheduledJobs')]
         [string]$TaskType,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
         [pscredential]$Credential
 
     )
@@ -87,8 +96,8 @@ function Install-WAMScheduledTask {
         $ExecutionFrequency = New-TimeSpan -Seconds $RuntimeFrequency
 
         $TaskTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval $ExecutionFrequency
-        $TaskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable -Compatibility Win8 -ExecutionTimeLimit $ExecutionFrequency
-        $TaskAction = New-ScheduledTaskAction –Execute "Powershell.exe" -Argument `"$ScriptFilePath`" -WorkingDirectory $ModuleLocation
+        $TaskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -Compatibility Win8 -RunOnlyIfNetworkAvailable -StartWhenAvailable -DontStopOnIdleEnd -ExecutionTimeLimit $ExecutionFrequency
+        $TaskAction = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument `"$ScriptFilePath`" -WorkingDirectory `"$ModuleLocation`"
 
         $username = $Credential.UserName
         $password = $Credential.GetNetworkCredential().Password
