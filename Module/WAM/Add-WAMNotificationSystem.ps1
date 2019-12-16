@@ -8,7 +8,30 @@ function Add-WAMNotificationSystem {
     With this you can add email server settings or SMS settings to send
     notification alerts.
 
-    .PARAMETER
+    .PARAMETER Name
+    Friendly name for the alerting system.
+
+    .PARAMETER Description
+    Parameter to add additional information for the notification system.
+
+    .PARAMETER NotificationType
+    Valid choices are Email or SMS
+
+    .PARAMETER SMTPServer
+    Email server used for relay
+
+    .PARAMETER Username
+    Username for the SMTP server.
+
+    .PARAMETER Password
+    Password for the SMTP server.
+
+    .PARAMETER Port
+    Port number to be used for relaying email through SMTP server.
+
+    .PARAMETER UseSSL
+    Switch to specify whether SMTP connections should be over a
+    secure channel (TLS).
 
 
     .EXAMPLE
