@@ -8,7 +8,7 @@ function New-WAMNotification {
 
 
     .PARAMETER Name
-    The name of the alert
+    Friendly name of the alert.
 
     .PARAMETER Description
     A description or additional information about the alert destination.
@@ -16,6 +16,14 @@ function New-WAMNotification {
     .PARAMETER NotificationType
     This establishes a link between the notification addresse and the
     system to be used for sending the notification/alert.
+
+    .PARAMETER WebAppId
+    The ID number of the Web Application which is being monitored that you
+    want to alert on.
+
+    .PARAMETER WebAppName
+    The Name of the Web Application which is being monitored that you
+    want to alert on.
 
 
     .EXAMPLE
@@ -31,6 +39,10 @@ function New-WAMNotification {
 
 
     .NOTES
+    Update
+    12/16/2019
+    Brian Sexton
+
     Initial
     11/12/2019
     Brian Sexton
@@ -47,7 +59,13 @@ function New-WAMNotification {
 
         [Parameter(Mandatory)]
         [ValidateSet('Email', 'SMS')]
-        [string]$NotificationType
+        [string]$NotificationType,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "WebAppId")]
+        [int[]]$WebAppId,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "WebAppName")]
+        [string[]]$WebAppName
     )
 
     begin {
