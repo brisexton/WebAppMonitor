@@ -15,7 +15,7 @@ function New-WAMWebApp {
     .PARAMETER IsMonitored
     Set's the URL If you want set the URL to be monitored. Use this switch.
 
-    .PARAMETER Database
+    .PARAMETER DatabaseName
     The name of the database used by WebAppMonitor. The default value is
     WebAppMonitor.
 
