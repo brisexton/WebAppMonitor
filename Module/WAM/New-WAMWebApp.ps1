@@ -104,22 +104,29 @@ function New-WAMWebApp {
         }
 
         if (!($PSBoundParameters.ContainsKey($Description))) {
-            $Description = $null
+            $BasicAppInfo = @"
+            INSERT INTO dbo.webapps
+                (name, uri, monitor_active)
+            VALUES
+              ($Name, `'$Url`', $MonitorState)
+"@
+        } else {
+            $BasicAppInfo = @"
+            INSERT INTO dbo.webapps
+                (name, description, uri, monitor_active)
+            VALUES
+              (`'$Name`', `'$Description`', `'$Url`', $MonitorState)
+"@
         }
 
 
-        $BasicAppInfo = @"
-    INSERT INTO dbo.webapps
-        (name, description, uri, monitor_active)
-     VALUES
-        ($Name, $Description, `'$Url`', $MonitorState)
-"@
+
 
         $AppTestInfo = @"
     INSERT INTO dbo.apptests
         (webapp_id, status_code, method, post_body)
      VALUES
-        ($webappid, $StatusCode, $Method, $PostBody)
+        ($webappid, $StatusCode, $Method, `'$PostBody`')
 "@
 
         if ($PSBoundParameters.ContainsKey($Credential)) {
