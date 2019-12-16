@@ -1,4 +1,4 @@
-function Add-WAMNotificationSystem {
+function New-WAMNotificationSystem {
 
     <#
     .SYNOPSIS
