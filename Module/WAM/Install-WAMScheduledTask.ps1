@@ -39,7 +39,7 @@ function Install-WAMScheduledTask {
     Install-WAMScheduledTask -RuntimeFrequency 120 -ScriptFilePath C:\scripts\WAMRuntime.ps1 -InstallLocation C:\scripts\WAM -Credential $cred
 
     This will set the scheduled task to execute every 2 minutes (120 seconds) with
-    the WAM folder located in C:\scripts
+    the WAM PowerShell Module folder located in C:\scripts with the Runtime Script.
 
     .INPUTS
 
