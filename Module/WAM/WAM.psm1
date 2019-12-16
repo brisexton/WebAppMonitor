@@ -19,3 +19,6 @@
 . $PSScriptRoot\Update-WAMLog.ps1
 . $PSScriptRoot\Send-WAMNotification.ps1
 . $PSScriptRoot\Register-WAMScheduledTask.ps1
+. $PSScriptRoot\Add-WAMNotificationSystem.ps1
+. $PSScriptRoot\Get-WAMNotificationSystem.ps1
+. $PSScriptRoot\Remove-WAMNotificationSystem.ps1
