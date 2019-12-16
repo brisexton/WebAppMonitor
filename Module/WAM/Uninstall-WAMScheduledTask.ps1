@@ -47,6 +47,7 @@ function Uninstall-WAMScheduledTask {
             $null = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
             Write-Verbose -Message "Found Scheduled Task!"
             Unregister-ScheduledTask -TaskName $TaskName
+            Write-Verbose -Message "Successfully Removed scheduled task $TaskName from Task Scheduler."
         } catch {
             Write-Error -Message "Couldn't find scheduled task with name $TaskName in Task Scheduler."
         }
