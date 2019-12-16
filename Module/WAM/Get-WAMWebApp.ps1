@@ -7,22 +7,21 @@ function Get-WAMWebApp {
     .DESCRIPTION
 
 
-    .PARAMETER ServerInstance
-    The SQL Server Instance where the database lives. Default is
-    the default instance on localhost.
-
-    .PARAMETER DatabaseName
-    The name of the WebAppMonitor database, if changed from the
-    default name of WebAppMonitor.
-
     .PARAMETER Name
     The name of the Web Application that has been registered.
 
     .PARAMETER Active
     Whether the App is set to be actively monitored.
 
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
     .PARAMETER Credential
-    SQL Credential to connect to the SQL Server Instance.
+    SQL Login credentials to connect to the SQL Server Instance.
 
 
     .EXAMPLE
@@ -46,19 +45,19 @@ function Get-WAMWebApp {
     [CmdletBinding()]
     param(
 
-        [Parameter()]
-        [string]$ServerInstance = $env:COMPUTERNAME,
-
-        [Parameter()]
-        [string]$DatabaseName = 'WebAppMonitor',
-
         [Parameter(ParameterSetName = "Name")]
         [string]$Name,
 
         [Parameter(ParameterSetName = "Active")]
         [switch]$Active,
 
-        [parameter()]
+        [Parameter()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
         [pscredential]$Credential
 
     )

@@ -25,6 +25,16 @@ function New-WAMNotification {
     The Name of the Web Application which is being monitored that you
     want to alert on.
 
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
+    .PARAMETER Credential
+    SQL Login credentials to connect to the SQL Server Instance.
+
 
     .EXAMPLE
 
@@ -65,7 +75,18 @@ function New-WAMNotification {
         [int[]]$WebAppId,
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "WebAppName")]
-        [string[]]$WebAppName
+        [string[]]$WebAppName,
+
+        [Parameter()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [pscredential]$Credential
+
+
     )
 
     begin {

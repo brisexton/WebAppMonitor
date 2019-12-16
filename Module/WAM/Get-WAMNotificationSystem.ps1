@@ -13,6 +13,16 @@ function Get-WAMNotificationSystem {
     .PARAMETER SystemType
     Valid options are either Email or SMS.
 
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
+    .PARAMETER Credential
+    SQL Login credentials to connect to the SQL Server Instance.
+
     .EXAMPLE
 
 
@@ -34,12 +44,21 @@ function Get-WAMNotificationSystem {
     [CmdletBinding()]
     param(
 
-        [Parameter(Mandatory)]
+        [Parameter()]
         [string]$Name,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
         [ValidateSet('Email', 'SMS')]
-        [string]$SystemType
+        [string]$SystemType,
+
+        [Parameter()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [pscredential]$Credential
 
     )
 
@@ -48,7 +67,9 @@ function Get-WAMNotificationSystem {
     }
     process {
 
+        if ($PSBoundParameters.ContainsKey($Name)) {
 
+        }
 
     }
     end {

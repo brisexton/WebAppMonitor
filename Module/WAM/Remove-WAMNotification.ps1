@@ -13,6 +13,16 @@ function Remove-WAMNotification {
     .PARAMETER NotificationType
     Email or SMS are valid options.
 
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
+    .PARAMETER Credential
+    SQL Login credentials to connect to the SQL Server Instance.
+
 
     .EXAMPLE
 
@@ -40,7 +50,16 @@ function Remove-WAMNotification {
 
         [Parameter()]
         [ValidateSet('Email', 'SMS')]
-        [string]$NotificationType
+        [string]$NotificationType,
+
+        [Parameter()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [pscredential]$Credential
 
     )
 

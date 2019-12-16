@@ -20,11 +20,8 @@ function New-WAMNotificationSystem {
     .PARAMETER SMTPServer
     Email server used for relay
 
-    .PARAMETER Username
-    Username for the SMTP server.
-
-    .PARAMETER Password
-    Password for the SMTP server.
+    .PARAMETER SMTPCredential
+    Username and password for the SMTP Server.
 
     .PARAMETER Port
     Port number to be used for relaying email through SMTP server.
@@ -32,6 +29,16 @@ function New-WAMNotificationSystem {
     .PARAMETER UseSSL
     Switch to specify whether SMTP connections should be over a
     secure channel (TLS).
+
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
+    .PARAMETER Credential
+    SQL Login credentials to connect to the SQL Server Instance.
 
 
     .EXAMPLE
@@ -63,25 +70,44 @@ function New-WAMNotificationSystem {
         [string]$NotificationType,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
+        [ValidateNotNullOrEmpty()]
+        [string]$FromName,
+
+        [Parameter(Mandatory, ParameterSetName = "Email")]
+        [ValidateNotNullOrEmpty()]
+        [string]$FromAddress,
+
+        [Parameter(Mandatory, ParameterSetName = "Email")]
         [string]$SMTPServer,
 
         [Parameter(ParameterSetName = "Email")]
-        [string]$Username,
-
-        [Parameter(ParameterSetName = "Email")]
-        [string]$Password,
+        [pscredential]$SMTPCredential,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
         [int]$Port,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
-        [switch]$UseSSL
+        [switch]$UseSSL,
+
+        [Parameter()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [pscredential]$Credential
     )
 
     begin {
 
     }
     process {
+
+
+        $username = $Credential.UserName
+        $password = $Credential.GetNetworkCredential().Password
+
 
     }
     end {
