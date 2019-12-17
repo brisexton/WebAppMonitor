@@ -106,28 +106,38 @@ function New-WAMWebApp {
         if (!($PSBoundParameters.ContainsKey($Description))) {
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
-                (name, uri, monitor_active)
+                (name, description, uri, monitor_active)
             VALUES
-              ($Name, `'$Url`', $MonitorState)
+              ($Name, `'$Description`', `'$Url`', $MonitorState)
 "@
         } else {
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
-                (name, description, uri, monitor_active)
+                (name, uri, monitor_active)
             VALUES
-              (`'$Name`', `'$Description`', `'$Url`', $MonitorState)
+              (`'$Name`', `'$Url`', $MonitorState)
+"@
+        }
+
+        if ($Method -eq 'POST' -or $Method -eq 'PUT') {
+            $AppTestInfo = @"
+            INSERT INTO dbo.apptests
+                (webapp_id, status_code, method, post_body)
+             VALUES
+                ($webappid, $StatusCode, $Method, `'$PostBody`')
+"@
+        } elseif ($Method -ne 'TRACE') {
+            $AppTestInfo = @"
+            INSERT INTO dbo.apptests
+                (webapp_id, status_code, method)
+             VALUES
+                ($webappid, $StatusCode, $Method)
 "@
         }
 
 
 
 
-        $AppTestInfo = @"
-    INSERT INTO dbo.apptests
-        (webapp_id, status_code, method, post_body)
-     VALUES
-        ($webappid, $StatusCode, $Method, `'$PostBody`')
-"@
 
         if ($PSBoundParameters.ContainsKey($Credential)) {
 
@@ -142,6 +152,7 @@ function New-WAMWebApp {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
             }
+
         } else {
 
             try {
@@ -156,10 +167,6 @@ function New-WAMWebApp {
                 $Error[0]
             }
         }
-
-
-
-
 
     }
     end {
