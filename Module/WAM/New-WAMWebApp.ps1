@@ -110,7 +110,7 @@ function New-WAMWebApp {
             INSERT INTO dbo.webapps
                 (name, description, uri, monitor_active)
             VALUES
-              ($Name, `'$Description`', `'$Url`', $MonitorState)
+              (`'$Name`', `'$Description`', `'$Url`', $MonitorState)
 "@
         } else {
             $BasicAppInfo = @"
