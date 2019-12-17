@@ -67,9 +67,6 @@ function Get-WAMWebApp {
     }
     process {
 
-
-
-
         if ($PSBoundParameters.ContainsKey($Active)) {
             $sqlQuery = 'SELECT * FROM [dbo].[appinfo] WHERE monitor_active = TRUE'
         } elseif ($PSBoundParameters.ContainsKey($Name)) {
