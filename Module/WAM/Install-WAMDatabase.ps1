@@ -78,7 +78,6 @@ function Install-WAMDatabase {
         ) ON [PRIMARY]
         GO
 
-
         CREATE TABLE [dbo].[headers](
             [webapp_id] [int] NOT NULL,
             [header_key] [nvarchar](100) NULL,
@@ -86,15 +85,13 @@ function Install-WAMDatabase {
         )
         GO
 
-
         CREATE TABLE [dbo].[apptests](
             [test_id] [int] IDENTITY(1,1) NOT NULL,
             [webapp_id] [int] NOT NULL,
             [status_code] [int] NOT NULL,
             [method] [char](7) NOT NULL,
             [post_body] [text] NULL
-
-        )
+        ) ON [PRIMARY]
         GO
 
         CREATE TABLE [dbo].[apptestresults](
@@ -103,6 +100,7 @@ function Install-WAMDatabase {
             [end_time] [datetime] NULL,
             [failure] [bit] NOT NULL
         )
+        GO
 
         CREATE TABLE [dbo].[notify_type](
             [notifytype_id] [int] NOT NULL,
@@ -119,15 +117,18 @@ function Install-WAMDatabase {
         ) ON [PRIMARY]
         GO
 
-        CREATE TABLE [dbo].[emailconfig](
-            [emailsettings_id] [int] NOT NULL,
+        CREATE TABLE [dbo].[emailconfig]
+        (
+            [emailsettings_id] [int] IDENTITY(1,1) NOT NULL,
+            [from_name] [nvarchar] (50) NOT NULL,
             [from_address] [nvarchar](50) NOT NULL,
             [servername] [nvarchar](100) NOT NULL,
+            [smtpserver_username] [nvarchar](50) NULL,
+	        [smtpserver_password] [nvarchar](50) NULL,
             [port] [int] NOT NULL,
             [usessl] [bit] NOT NULL
-        )
+        ) ON [PRIMARY]
         GO
-
 
         CREATE VIEW [dbo].[appinfo]
             AS
@@ -135,7 +136,6 @@ function Install-WAMDatabase {
                 FROM dbo.webapps INNER JOIN
                     dbo.apptests ON dbo.webapps.webapp_id = dbo.apptests.webapp_id
         GO
-
 "@
 
         if ($PSBoundParameters.ContainsKey($Credential)) {

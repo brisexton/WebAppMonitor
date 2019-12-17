@@ -11,7 +11,6 @@ CREATE TABLE [dbo].[webapps]
 ) ON [PRIMARY]
 GO
 
-
 CREATE TABLE [dbo].[headers]
 (
     [webapp_id] [int] NOT NULL,
@@ -20,7 +19,6 @@ CREATE TABLE [dbo].[headers]
 )
 GO
 
-
 CREATE TABLE [dbo].[apptests]
 (
     [test_id] [int] IDENTITY(1,1) NOT NULL,
@@ -28,8 +26,7 @@ CREATE TABLE [dbo].[apptests]
     [status_code] [int] NOT NULL,
     [method] [char](7) NOT NULL,
     [post_body] [text] NULL
-
-)
+) ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[apptestresults]
@@ -59,10 +56,11 @@ GO
 
 CREATE TABLE [dbo].[emailconfig]
 (
-    [emailsettings_id] [int] NOT NULL,
+    [emailsettings_id] [int] IDENTITY(1,1) NOT NULL,
+    [from_name] [nvarchar] (50) NOT NULL,
     [from_address] [nvarchar](50) NOT NULL,
     [servername] [nvarchar](100) NOT NULL,
     [port] [int] NOT NULL,
     [usessl] [bit] NOT NULL
-)
+) ON [PRIMARY]
 GO
