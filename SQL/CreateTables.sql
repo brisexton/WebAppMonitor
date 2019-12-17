@@ -36,6 +36,7 @@ CREATE TABLE [dbo].[apptestresults]
     [end_time] [datetime] NULL,
     [failure] [bit] NOT NULL
 )
+GO
 
 CREATE TABLE [dbo].[notify_type]
 (
@@ -60,6 +61,8 @@ CREATE TABLE [dbo].[emailconfig]
     [from_name] [nvarchar] (50) NOT NULL,
     [from_address] [nvarchar](50) NOT NULL,
     [servername] [nvarchar](100) NOT NULL,
+    [smtpserver_username] [nvarchar](50) NULL,
+    [smtpserver_password] [nvarchar](50) NULL,
     [port] [int] NOT NULL,
     [usessl] [bit] NOT NULL
 ) ON [PRIMARY]
