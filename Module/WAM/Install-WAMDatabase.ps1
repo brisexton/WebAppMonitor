@@ -109,6 +109,12 @@ function Install-WAMDatabase {
         )
         GO
 
+        INSERT INTO [dbo].[notify_type](notifytype_id, name, description)
+        VALUES (1, 'Email', 'SMTP Server Relay')
+
+        INSERT INTO [dbo].[notify_type] (notifytype_id, name, description)
+        VALUES (2, 'SMS', 'Text Messages')
+
         CREATE TABLE [dbo].[notification](
             [notification_id] [int] IDENTITY(1,1) NOT NULL,
             [webapp_id] [int] NOT NULL,
@@ -143,10 +149,16 @@ function Install-WAMDatabase {
             try {
                 Write-Verbose "Attempting to create database $DatabaseName on $ServerInstance"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -Credential $Credential -ErrorAction Stop
+
+            } catch {
+                Write-Host "Failed to Create Database" -ForegroundColor Red
+                $Error[0]
+            }
+            try {
                 Write-Verbose "Attempting to create tables in $DatabaseName on $ServerInstance"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -Credential $Credential -ErrorAction Stop
             } catch {
-                Write-Host "Failed to Create Database" -ForegroundColor Red
+                Write-Host "Failed to Create Database Tables" -ForegroundColor Red
                 $Error[0]
             }
         } else {
@@ -154,10 +166,15 @@ function Install-WAMDatabase {
             try {
                 Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -ErrorAction Stop
+            } catch {
+                Write-Host "Failed to Create Database" -ForegroundColor Red
+                $Error[0]
+            }
+            try {
                 Write-Verbose "Attempting to create tables in $DatabaseName on $ServerInstance"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -ErrorAction Stop
             } catch {
-                Write-Host "Failed to Create Database" -ForegroundColor Red
+                Write-Host "Failed to Create Database Tables" -ForegroundColor Red
                 $Error[0]
             }
         }

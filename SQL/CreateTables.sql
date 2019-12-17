@@ -46,6 +46,16 @@ CREATE TABLE [dbo].[notify_type]
 )
 GO
 
+INSERT INTO [dbo].[notify_type]
+    (notifytype_id, name, description)
+VALUES
+    (1, 'Email', 'SMTP Server Relay')
+
+INSERT INTO [dbo].[notify_type]
+    (notifytype_id, name, description)
+VALUES
+    (2, 'SMS', 'Text Messages')
+
 CREATE TABLE [dbo].[notification]
 (
     [notification_id] [int] IDENTITY(1,1) NOT NULL,
