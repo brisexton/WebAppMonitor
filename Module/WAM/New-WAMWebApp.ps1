@@ -40,6 +40,10 @@ function New-WAMWebApp {
 
     .NOTES
     Update
+    12/16/2019
+    Brian Sexton
+
+    Update
     11/10/2019
     Brian Sexton
 
@@ -49,7 +53,7 @@ function New-WAMWebApp {
 
 #>
     [CmdletBinding()]
-    param (
+    param(
 
         [Parameter(Mandatory)]
         [ValidateLength(1, 50)]
@@ -67,7 +71,7 @@ function New-WAMWebApp {
         [int]$StatusCode,
 
         [Parameter(Mandatory)]
-        [ValidateSet("GET", "HEAD", "POST", "PUT", "TRACE")]
+        [ValidateSet("GET", "HEAD", "POST", "PUT")]
         [string]$Method = "GET",
 
         [Parameter()]
@@ -95,8 +99,6 @@ function New-WAMWebApp {
     }
     process {
 
-
-
         if ($PSBoundParameters.ContainsKey($IsMonitored)) {
             $MonitorState = 1
         } else {
@@ -119,6 +121,32 @@ function New-WAMWebApp {
 "@
         }
 
+        if ($PSBoundParameters.ContainsKey($Credential)) {
+
+            try {
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
+                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name } | Select-Object webapp_id
+                Write-Verbose "Attempting to save expected test results for web app $Name"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
+            } catch {
+                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
+                $Error[0]
+            }
+        } else {
+
+            try {
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
+                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
+                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name } | Select-Object webapp_id
+            } catch {
+                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
+                $Error[0]
+            }
+        }
+
         if ($Method -eq 'POST' -or $Method -eq 'PUT') {
             $AppTestInfo = @"
             INSERT INTO dbo.apptests
@@ -126,7 +154,7 @@ function New-WAMWebApp {
              VALUES
                 ($webappid, $StatusCode, $Method, `'$PostBody`')
 "@
-        } elseif ($Method -ne 'TRACE') {
+        } elseif ($Method -eq 'GET') {
             $AppTestInfo = @"
             INSERT INTO dbo.apptests
                 (webapp_id, status_code, method)
@@ -135,35 +163,22 @@ function New-WAMWebApp {
 "@
         }
 
-
-
-
-
         if ($PSBoundParameters.ContainsKey($Credential)) {
 
             try {
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
-                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
                 Write-Verbose "Attempting to save expected test results for web app $Name"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
             } catch {
-                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
+                Write-Host "Failed to add expected test results for Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
             }
-
         } else {
 
             try {
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
-                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
                 Write-Verbose "Attempting to save expected test results for web app $Name"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -ErrorAction Stop
             } catch {
-                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
+                Write-Host "Failed to add expected test results for Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
             }
         }
