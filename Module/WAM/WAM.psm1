@@ -11,6 +11,7 @@
 
 # Creates the database and tables.
 . $PSScriptRoot\Install-WAMDatabase.ps1
+# . $PSScriptRoot\New-WAMSQLLogin.ps1
 
 # Adds a web application, to be monitored, to the database.
 . $PSScriptRoot\Get-WAMWebApp.ps1
