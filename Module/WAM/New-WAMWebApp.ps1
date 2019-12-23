@@ -99,13 +99,14 @@ function New-WAMWebApp {
     }
     process {
 
-        if ($PSBoundParameters.ContainsKey($IsMonitored)) {
+        if ($IsMonitored) {
             $MonitorState = 1
         } else {
             $MonitorState = 0
         }
 
-        if (!($PSBoundParameters.ContainsKey($Description))) {
+        if ($PSBoundParameters.ContainsKey($Description)) {
+            $Description = $Description -replace "'", ""
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
                 (name, description, uri, monitor_active)
@@ -113,6 +114,7 @@ function New-WAMWebApp {
               (`'$Name`', `'$Description`', `'$Url`', $MonitorState)
 "@
         } else {
+
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
                 (name, uri, monitor_active)
@@ -121,15 +123,19 @@ function New-WAMWebApp {
 "@
         }
 
+        # To check for an existing entry in the database
+        $CheckForExistingEntry = $null
+
+
         if ($PSBoundParameters.ContainsKey($Credential)) {
 
             try {
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with the credentials specified."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                Write-Verbose "Successfully save information for $Name to the $DatabaseName on Server $ServerInstance with the credentials specified."
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name } | Select-Object webapp_id
-                Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
+                [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }).webapp_id
+                Write-Verbose "Successfully retrieved WebApp ID of $webappId for $Name"
             } catch {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
@@ -139,8 +145,10 @@ function New-WAMWebApp {
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
+                Write-Verbose "Successfully save information for $Name to the $DatabaseName on Server $ServerInstance"
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name } | Select-Object webapp_id
+                [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }).webapp_id
+                Write-Verbose "Successfully retrieved WebApp ID of $webappId for $Name"
             } catch {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
@@ -152,14 +160,14 @@ function New-WAMWebApp {
             INSERT INTO dbo.apptests
                 (webapp_id, status_code, method, post_body)
              VALUES
-                ($webappid, $StatusCode, $Method, `'$PostBody`')
+                ($webappid, $StatusCode, `'$Method`', `'$PostBody`')
 "@
-        } elseif ($Method -eq 'GET') {
+        } elseif ($Method -eq 'GET' -or $Method -eq 'HEAD') {
             $AppTestInfo = @"
             INSERT INTO dbo.apptests
                 (webapp_id, status_code, method)
              VALUES
-                ($webappid, $StatusCode, $Method)
+                ($webappid, $StatusCode, `'$Method`')
 "@
         }
 
