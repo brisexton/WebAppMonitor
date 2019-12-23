@@ -42,7 +42,7 @@ function Get-WAMWebApp {
     Brian Sexton
 
 #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "All")]
     param(
 
         [Parameter(ParameterSetName = "Name")]
@@ -50,6 +50,9 @@ function Get-WAMWebApp {
 
         [Parameter(ParameterSetName = "Active")]
         [switch]$Active,
+
+        [Parameter(ParameterSetName = "All")]
+        [switch]$All,
 
         [Parameter()]
         [string]$DatabaseName = "WebAppMonitor",
