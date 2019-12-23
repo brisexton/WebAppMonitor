@@ -27,7 +27,18 @@ function New-WAMWebApp {
 
 
     .EXAMPLE
+    $SampleWebAppToMonitor = @{
+        Name           = "Primary News website - CNN.com"
+        Description    = "Sample website to make sure its working correctly"
+        Url            = "https://www.cnn.com"
+        StatusCode     = 200
+        Method         = "GET"
+        ServerInstance = "SERVER1\SQL"
+    }
+    New-WAMWebApp @SampleWebAppToMonitor -IsMonitored
 
+    The above loads all of the variables into a hash table to splat with the
+    IsMonitored switch so the site will be tested.
 
     .INPUTS
 
