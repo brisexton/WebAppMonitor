@@ -43,17 +43,14 @@ function Get-WAMWebApp {
     Brian Sexton
 
 #>
-    [CmdletBinding(DefaultParameterSetName = "All")]
+    [CmdletBinding(DefaultParameterSetName = "ByName")]
     param(
 
-        [Parameter(ParameterSetName = "Name")]
+        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "ByName")]
         [string]$Name,
 
-        [Parameter(ParameterSetName = "Active")]
-        [switch]$Active,
-
-        [Parameter(ParameterSetName = "All")]
-        [switch]$All,
+        [Parameter()]
+        [switch]$IsMonitored,
 
         [Parameter()]
         [string]$DatabaseName = "WebAppMonitor",
@@ -72,20 +69,21 @@ function Get-WAMWebApp {
     process {
 
 
-        if ($PSBoundParameters.ContainsKey("Active")) {
+        $sqlQuery = 'SELECT * FROM [dbo].[appinfo]'
+
+        if ($PSBoundParameters.ContainsKey("IsMonitored")) {
             $sqlQuery = 'SELECT * FROM [dbo].[appinfo] WHERE monitor_active = 1'
         }
         if ($PSBoundParameters.ContainsKey("Name")) {
-            $sqlQuery = "SELECT * FROM [dbo].[appinfo] WHERE name LIKE %$Name%"
+            $sqlQuery = "SELECT * FROM [dbo].[appinfo] WHERE name LIKE `'%$Name%`'"
         }
-        if ($PSBoundParameters.ContainsKey("All")) {
-            $sqlQuery = 'SELECT * FROM [dbo].[appinfo]'
-        }
-        Write-Verbose "Will Execute Query $sqlQuery"
 
-        if ($PSBoundParameters.ContainsKey($Credential)) {
+
+        Write-Verbose "Will attempt to execute query $sqlQuery"
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
             try {
-                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with sql creds"
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Credential $Credential -OutputAs DataRows -ErrorAction Stop
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
