@@ -71,23 +71,22 @@ function Get-WAMWebApp {
     }
     process {
 
-        $sqlQuery = 'SELECT * FROM [dbo].[appinfo]'
 
-        if ($PSBoundParameters.ContainsKey($Active)) {
-            $sqlQuery = 'SELECT * FROM [dbo].[appinfo] WHERE monitor_active = TRUE'
+        if ($PSBoundParameters.ContainsKey("Active")) {
+            $sqlQuery = 'SELECT * FROM [dbo].[appinfo] WHERE monitor_active = 1'
         }
-        if ($PSBoundParameters.ContainsKey($Name)) {
+        if ($PSBoundParameters.ContainsKey("Name")) {
             $sqlQuery = "SELECT * FROM [dbo].[appinfo] WHERE name LIKE %$Name%"
         }
-        if ($PSBoundParameters.ContainsKey($All)) {
+        if ($PSBoundParameters.ContainsKey("All")) {
             $sqlQuery = 'SELECT * FROM [dbo].[appinfo]'
         }
+        Write-Verbose "Will Execute Query $sqlQuery"
 
         if ($PSBoundParameters.ContainsKey($Credential)) {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with sql creds"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Credential $Credential -OutputAs DataRows -ErrorAction Stop |
-                    Write-Output
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Credential $Credential -OutputAs DataRows -ErrorAction Stop
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
@@ -95,8 +94,7 @@ function Get-WAMWebApp {
         } else {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -ErrorAction Stop |
-                    Write-Output
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -ErrorAction Stop
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
