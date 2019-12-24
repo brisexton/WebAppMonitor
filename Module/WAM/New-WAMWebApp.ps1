@@ -116,8 +116,8 @@ function New-WAMWebApp {
             $MonitorState = 0
         }
 
-        if ($PSBoundParameters.ContainsKey($Description)) {
-            $Description = $Description -replace "'", ""
+        if (!($PSBoundParameters.ContainsKey($Description))) {
+            $Description = $Description -replace "`'", ""
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
                 (name, description, uri, monitor_active)
@@ -125,7 +125,6 @@ function New-WAMWebApp {
               (`'$Name`', `'$Description`', `'$Url`', $MonitorState)
 "@
         } else {
-
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
                 (name, uri, monitor_active)
@@ -143,7 +142,7 @@ function New-WAMWebApp {
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with the credentials specified."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
-                Write-Verbose "Successfully save information for $Name to the $DatabaseName on Server $ServerInstance with the credentials specified."
+                Write-Verbose "Successfully saved information for $Name to the $DatabaseName on Server $ServerInstance with the credentials specified."
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }).webapp_id
                 Write-Verbose "Successfully retrieved WebApp ID of $webappId for $Name"
@@ -156,7 +155,7 @@ function New-WAMWebApp {
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
-                Write-Verbose "Successfully save information for $Name to the $DatabaseName on Server $ServerInstance"
+                Write-Verbose "Successfully saved information for $Name to the $DatabaseName on Server $ServerInstance"
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }).webapp_id
                 Write-Verbose "Successfully retrieved WebApp ID of $webappId for $Name"
