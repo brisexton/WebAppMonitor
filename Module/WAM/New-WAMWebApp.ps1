@@ -116,7 +116,7 @@ function New-WAMWebApp {
             $MonitorState = 0
         }
 
-        if (!($PSBoundParameters.ContainsKey($Description))) {
+        if ($PSBoundParameters.ContainsKey("Description")) {
             $Description = $Description -replace "`'", ""
             $BasicAppInfo = @"
             INSERT INTO dbo.webapps
