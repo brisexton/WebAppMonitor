@@ -53,8 +53,29 @@ function Set-WAMWebApp {
         [ValidateNotNullOrEmpty()]
         [int]$WebAppId,
 
+        [Parameter()]
+        [ValidateLength(1, 160)]
+        [string]$Description,
 
+        [Parameter()]
+        [ValidatePattern("^http")]
+        [string]$Url,
 
+        [Parameter()]
+        [int]$StatusCode,
+
+        [Parameter()]
+        [ValidateSet("GET", "HEAD", "POST", "PUT")]
+        [string]$Method,
+
+        [Parameter()]
+        [string]$ContentType,
+
+        [Parameter()]
+        [string]$PostBody,
+
+        [Parameter()]
+        [switch]$IsMonitored,
 
         [Parameter()]
         [string]$DatabaseName = "WebAppMonitor",
