@@ -1,4 +1,3 @@
-#Requires -Module SqlServer
 function Get-WAMWebApp {
     <#
     .SYNOPSIS
@@ -11,7 +10,7 @@ function Get-WAMWebApp {
     The name of the Web Application that has been registered. This value
     get's submitted to the database as a wild card.
 
-    .PARAMETER Active
+    .PARAMETER IsMonitored
     Whether the App is set to be actively monitored.
 
     .PARAMETER DatabaseName
@@ -26,7 +25,7 @@ function Get-WAMWebApp {
 
 
     .EXAMPLE
-
+    Get-WAMWebApp -Name "cnn" -ServerInstance "SERVER1\SQL"
 
     .INPUTS
 
@@ -38,6 +37,10 @@ function Get-WAMWebApp {
 
 
     .NOTES
+    Update
+    12/23/2019
+    Brian Sexton
+
     Initial
     11/10/2019
     Brian Sexton
