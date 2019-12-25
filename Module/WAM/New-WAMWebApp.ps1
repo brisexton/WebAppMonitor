@@ -143,7 +143,7 @@ function New-WAMWebApp {
         $CheckForExistingEntry = $null
 
 
-        if ($PSBoundParameters.ContainsKey($Credential)) {
+        if ($PSBoundParameters.ContainsKey("Credential")) {
 
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with the credentials specified."
@@ -187,7 +187,7 @@ function New-WAMWebApp {
 "@
         }
 
-        if ($PSBoundParameters.ContainsKey($Credential)) {
+        if ($PSBoundParameters.ContainsKey("Credential")) {
 
             try {
                 Write-Verbose "Attempting to save expected test results for web app $Name"

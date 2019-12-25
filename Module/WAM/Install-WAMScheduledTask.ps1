@@ -95,7 +95,7 @@ function Install-WAMScheduledTask {
 
         $ExecutionFrequency = New-TimeSpan -Seconds $RuntimeFrequency
 
-        if (($PSBoundParameters.ContainsKey($PowerShellVersion))) {
+        if (($PSBoundParameters.ContainsKey("PowerShellVersion"))) {
             switch ($PowerShellVersion) {
                 "WindowsPowerShell" { $psshellexecutable = "Powershell.exe"; break }
                 "PowerShellCore" { $psshellexecutable = "pwsh.exe"; break }

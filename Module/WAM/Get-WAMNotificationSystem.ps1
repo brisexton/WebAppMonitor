@@ -67,7 +67,7 @@ function Get-WAMNotificationSystem {
     }
     process {
 
-        if ($PSBoundParameters.ContainsKey($Name)) {
+        if ($PSBoundParameters.ContainsKey("Name")) {
 
         }
 
