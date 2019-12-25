@@ -145,12 +145,18 @@ function New-WAMWebApp {
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
 
+            $UserName = $Credential.UserName
+            $SQLPass = $Credential.GetNetworkCredential().Password
+
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with the credentials specified."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Username $UserName -Password $SQLPass -AbortOnError
                 Write-Verbose "Successfully saved information for $Name to the $DatabaseName on Server $ServerInstance with the credentials specified."
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }).webapp_id
+
+                throw;
+
+                [int]$webappId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }).webapp_id
                 Write-Verbose "Successfully retrieved WebApp ID of $webappId for $Name"
             } catch {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
@@ -191,7 +197,8 @@ function New-WAMWebApp {
 
             try {
                 Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Username $UserName -Password $SQLPass -AbortOnError
+                Write-Verbose "Successfully saved app test information for $Name to the database."
             } catch {
                 Write-Host "Failed to add expected test results for Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
@@ -200,7 +207,8 @@ function New-WAMWebApp {
 
             try {
                 Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -AbortOnError
+                Write-Verbose "Successfully saved app test information for $Name to the database."
             } catch {
                 Write-Host "Failed to add expected test results for Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
