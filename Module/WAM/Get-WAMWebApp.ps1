@@ -86,8 +86,13 @@ function Get-WAMWebApp {
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
             try {
+
+                $UserName = $Credential.UserName
+                $SQLPass = $Credential.GetNetworkCredential().Password
+
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Credential $Credential -OutputAs DataRows -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -Credential $Credential -OutputAs DataRows -AbortOnError
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
@@ -95,7 +100,7 @@ function Get-WAMWebApp {
         } else {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]

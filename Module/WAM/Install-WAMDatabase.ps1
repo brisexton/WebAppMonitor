@@ -144,11 +144,14 @@ function Install-WAMDatabase {
         GO
 "@
 
-        if ($PSBoundParameters.ContainsKey($Credential)) {
+        if ($PSBoundParameters.ContainsKey("Credential")) {
+
+            $UserName = $Credential.UserName
+            $SQLPass = $Credential.GetNetworkCredential().Password
 
             try {
                 Write-Verbose "Attempting to create database $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -Username $UserName -Password $SQLPass -AbortOnError
 
             } catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
@@ -156,7 +159,7 @@ function Install-WAMDatabase {
             }
             try {
                 Write-Verbose "Attempting to create tables in $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -Username $UserName -Password $SQLPass -AbortOnError
             } catch {
                 Write-Host "Failed to Create Database Tables" -ForegroundColor Red
                 $Error[0]
@@ -165,14 +168,14 @@ function Install-WAMDatabase {
 
             try {
                 Write-Verbose "Attempting to Create Database $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $NewDatabaseStatement -AbortOnError
             } catch {
                 Write-Host "Failed to Create Database" -ForegroundColor Red
                 $Error[0]
             }
             try {
                 Write-Verbose "Attempting to create tables in $DatabaseName on $ServerInstance"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $NewDatabaseTables -AbortOnError
             } catch {
                 Write-Host "Failed to Create Database Tables" -ForegroundColor Red
                 $Error[0]

@@ -107,6 +107,7 @@ function New-WAMNotificationSystem {
         $FromAddress = $FromAddress.Trim(" ")
         $FromFullAddress = "$FromName <$FromAddress>"
 
+
         if ($PSBoundParameters.ContainsKey("SMTPCredential")) {
             $SMTPUsername = $SMTPCredential.UserName
             $SMTPPassword = $SMTPCredential.GetNetworkCredential().Password
@@ -117,12 +118,15 @@ function New-WAMNotificationSystem {
         if ($PSBoundParameters.ContainsKey("Credential")) {
 
             try {
+                $UserName = $Credential.UserName
+                $SQLPass = $Credential.GetNetworkCredential().Password
+
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Username $UserName -Password $SQLPass -AbortOnError
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
                 Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Credential $Credential -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Username $UserName -Password $SQLPass -AbortOnError
             } catch {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
@@ -132,11 +136,11 @@ function New-WAMNotificationSystem {
 
             try {
                 Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -AbortOnError
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
                 [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
                 Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -AbortOnError
             } catch {
                 Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
                 $Error[0]
