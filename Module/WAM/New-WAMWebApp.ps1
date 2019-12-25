@@ -6,6 +6,12 @@ function New-WAMWebApp {
     .DESCRIPTION
 
 
+    .PARAMETER Name
+    The Friendly Name of the web application.
+
+    .PARAMETER Description
+    Description of the web application.
+
     .PARAMETER Url
     The URL to monitor.
 
