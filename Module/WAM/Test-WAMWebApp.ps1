@@ -8,6 +8,16 @@ function Test-WAMWebApp {
 
     .PARAMETER
 
+    .PARAMETER DatabaseName
+    The name of the database used by WebAppMonitor. The default value is
+    WebAppMonitor.
+
+    .PARAMETER ServerInstance
+    The Instance of SQL Server where the database is located.
+
+    .PARAMETER Credential
+    SQL Login credentials to connect to the SQL Server Instance.
+
 
     .EXAMPLE
 
@@ -22,12 +32,26 @@ function Test-WAMWebApp {
 
 
     .NOTES
+    Initial
+    12/27/2019
+    Brian Sexton
 
 
 #>
     [CmdletBinding()]
     param (
 
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$DatabaseName = "WebAppMonitor",
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$ServerInstance = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [pscredential]$Credential
     )
 
     begin {
@@ -36,12 +60,7 @@ function Test-WAMWebApp {
 
     process {
 
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 
-        $headers.Add("$HeaderKey", "$HeaderValue")
-
-        $headers.Add("X-Cisco-Meraki-API-Key", "$APIKey")
-        $headers.Add("Content-Type", "application/json")
 
         Invoke-RestMethod -uri $uri -Method Get -Headers $headers
 
