@@ -107,7 +107,7 @@ function Install-WAMDatabase {
             [notifysystem_type] [nvarchar](10) NOT NULL,
             [notifysystem_name] [nvarchar](20) NOT NULL,
             [notifysystem_description] [nvarchar](100) NULL
-        )
+        ) ON [PRIMARY]
         GO
 
         CREATE TABLE [dbo].[notificationtype](
@@ -133,7 +133,8 @@ function Install-WAMDatabase {
 
         CREATE TABLE [dbo].[emailconfig]
         (
-            [emailsettings_id] [int] NOT NULL,
+            [emailsettings_id] [int] IDENTITY(1,1) NOT NULL,
+            [notifysystem_id] [int] NOT NULL,
             [from_name] [nvarchar] (50) NOT NULL,
             [from_address] [nvarchar](50) NOT NULL,
             [servername] [nvarchar](100) NOT NULL,
