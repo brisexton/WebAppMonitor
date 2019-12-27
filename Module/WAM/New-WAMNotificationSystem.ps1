@@ -64,14 +64,17 @@ function New-WAMNotificationSystem {
 
         [Parameter(Mandatory)]
         [ValidateLength(1, 20)]
+        [ValidateNotNullOrEmpty()]
         [string]$Name,
 
         [Parameter()]
         [ValidateLength(1, 100)]
+        [ValidateNotNullOrEmpty()]
         [string]$Description,
 
         [Parameter(Mandatory)]
         [ValidateSet('Email', 'SMS')]
+        [ValidateNotNullOrEmpty()]
         [string]$NotificationType,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
@@ -84,24 +87,30 @@ function New-WAMNotificationSystem {
         [string]$FromAddress,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
+        [ValidateNotNullOrEmpty()]
         [string]$SMTPServer,
 
         [Parameter(ParameterSetName = "Email")]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$SMTPCredential,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
+        [ValidateNotNullOrEmpty()]
         [int]$Port,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
         [switch]$UseSSL,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$Credential
     )
 
@@ -181,14 +190,14 @@ function New-WAMNotificationSystem {
 
                 $sqlStatememntExtended = @"
                 INSERT INTO dbo.emailconfig
-                    (emailsettings_id, from_name, from_address, servername, smtpserver_username, smtpserver_password, port, usessl)
+                    (notifysystem_id, from_name, from_address, servername, smtpserver_username, smtpserver_password, port, usessl)
                 VALUES
                     ($notifySystemId, `'$FromName`', `'$FromAddress`', `'$SMTPServer`', `'$SMTPUsername`', `'$SMTPPassword`', $Port, $EncryptedConnection)
 "@
             } else {
                 $sqlStatememntExtended = @"
                 INSERT INTO dbo.emailconfig
-                    (emailsettings_id, from_name, from_address, servername, port, usessl)
+                    (notifysystem_id, from_name, from_address, servername, port, usessl)
                 VALUES
                     ($notifySystemId, `'$FromName`', `'$FromAddress`', `'$SMTPServer`', $Port, $EncryptedConnection)
 "@
