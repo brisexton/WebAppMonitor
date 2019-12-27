@@ -1,1 +1,4 @@
 Scripts/Testing.ps1
+# Scratch Files
+# used for launching debugger and also other local testing
+Scratch/**
