@@ -63,7 +63,12 @@ function New-WAMNotificationSystem {
     param(
 
         [Parameter(Mandatory)]
+        [ValidateLength(1, 10)]
         [string]$Name,
+
+        [Parameter()]
+        [ValidateLength(1, 100)]
+        [string]$Description,
 
         [Parameter(Mandatory)]
         [ValidateSet('Email', 'SMS')]
@@ -121,10 +126,10 @@ function New-WAMNotificationSystem {
                 $UserName = $Credential.UserName
                 $SQLPass = $Credential.GetNetworkCredential().Password
 
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with specified Credentials."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Username $UserName -Password $SQLPass -AbortOnError
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
+                [int]$notifyTypeId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'notify_type' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
                 Write-Verbose "Attempting to save expected test results for web app $Name"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Username $UserName -Password $SQLPass -AbortOnError
             } catch {
