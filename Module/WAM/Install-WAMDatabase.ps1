@@ -151,6 +151,15 @@ function Install-WAMDatabase {
                 FROM dbo.webapps INNER JOIN
                     dbo.apptests ON dbo.webapps.webapp_id = dbo.apptests.webapp_id
         GO
+
+        CREATE VIEW [dbo].[smtpconfiguration]
+            AS
+                SELECT        dbo.emailconfig.emailsettings_id, dbo.notificationsystem.notifysystem_name, dbo.notificationsystem.notifysystem_description, dbo.emailconfig.from_name, dbo.emailconfig.from_address, dbo.emailconfig.servername,
+                                 dbo.emailconfig.smtpserver_username, dbo.emailconfig.smtpserver_password, dbo.emailconfig.port, dbo.emailconfig.usessl
+                FROM            dbo.notificationsystem INNER JOIN
+                                 dbo.emailconfig ON dbo.notificationsystem.notifysystem_id = dbo.emailconfig.notifysystem_id
+                WHERE        (dbo.notificationsystem.notifysystem_type = N'Email')
+        GO
 "@
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
