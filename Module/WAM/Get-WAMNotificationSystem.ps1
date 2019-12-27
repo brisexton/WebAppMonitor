@@ -45,11 +45,12 @@ function Get-WAMNotificationSystem {
     param(
 
         [Parameter()]
+        [ValidateLength(1, 20)]
         [string]$Name,
 
         [Parameter()]
         [ValidateSet('Email', 'SMS')]
-        [string]$SystemType,
+        [string]$SystemType = 'Email',
 
         [Parameter()]
         [string]$DatabaseName = "WebAppMonitor",
@@ -67,8 +68,46 @@ function Get-WAMNotificationSystem {
     }
     process {
 
-        if ($PSBoundParameters.ContainsKey("Name")) {
+        If ($SystemType -eq "SMS") {
+            Write-Error -Message "The database schema hasn't been extended to support SMS Notifications yet." -Category NotImplemented
+            throw;
+        }
 
+        if ($SystemType -eq "Email") {
+            $sqlStatement = "SELECT * FROM [dbo].[smtpconfiguration]"
+        }
+
+
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
+
+            $SQLLoginUserName = $Credential.UserName
+            $SQLLoginPassword = $Credential.GetNetworkCredential().Password
+
+            try {
+                Write-Verbose "Attempting to retrieve email configuration settings."
+                if ($PSBoundParameters.ContainsKey("Name")) {
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
+                } else {
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                }
+
+            } catch {
+                Write-Host "Failed to execute Sql Query $sqlStatement against database $DatabaseName on instance $ServerInstance with specified credentials." -ForegroundColor Red
+                $Error[0]
+            }
+        } else {
+            try {
+                Write-Verbose "Attempting to retrieve email configuration settings."
+                if ($PSBoundParameters.ContainsKey("Name")) {
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
+                } else {
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError
+                }
+            } catch {
+                Write-Host "Failed to execute Sql Query $sqlStatement against database $DatabaseName on instance $ServerInstance." -ForegroundColor Red
+                $Error[0]
+            }
         }
 
     }
