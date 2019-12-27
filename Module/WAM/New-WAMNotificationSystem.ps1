@@ -63,7 +63,7 @@ function New-WAMNotificationSystem {
     param(
 
         [Parameter(Mandatory)]
-        [ValidateLength(1, 10)]
+        [ValidateLength(1, 20)]
         [string]$Name,
 
         [Parameter()]
@@ -80,6 +80,7 @@ function New-WAMNotificationSystem {
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
         [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[a-zA-Z0-9.!£#$%&'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$")]
         [string]$FromAddress,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
@@ -109,16 +110,27 @@ function New-WAMNotificationSystem {
     }
     process {
 
-        $FromAddress = $FromAddress.Trim(" ")
-        $FromFullAddress = "$FromName <$FromAddress>"
-
-
-        if ($PSBoundParameters.ContainsKey("SMTPCredential")) {
-            $SMTPUsername = $SMTPCredential.UserName
-            $SMTPPassword = $SMTPCredential.GetNetworkCredential().Password
+        if ($NotificationType -eq "SMS") {
+            Write-Error -Message "The database schema hasn't been extended for this yet." -Category NotImplemented
+            throw;
         }
 
-        $sqlQueryBuild = "INSERT INTO dbo."
+        if ($PSBoundParameters.ContainsKey("Description")) {
+            $Description = $Description -replace "`'", ""
+            $sqlStatementBasic = @"
+            INSERT INTO dbo.notificationsystem
+                (notifysystem_type, notifysystem_name, notifysystem_description)
+            VALUES
+              (`'$NotificationType`', `'$Name`', `'$Description`')
+"@
+        } else {
+            $sqlStatementBasic = @"
+            INSERT INTO dbo.notificationsystem
+                (notifysystem_type, notifysystem_name)
+            VALUES
+            (`'$NotificationType`', `'$Name`')
+"@
+        }
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
 
@@ -126,31 +138,92 @@ function New-WAMNotificationSystem {
                 $UserName = $Credential.UserName
                 $SQLPass = $Credential.GetNetworkCredential().Password
 
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance with specified Credentials."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -Username $UserName -Password $SQLPass -AbortOnError
+                Write-Verbose "Attempting to add notification system name and description to databse for $Name to the database $DatabaseName on SQL Server $ServerInstance with specified Credentials."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatementBasic -Username $UserName -Password $SQLPass -AbortOnError
                 Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$notifyTypeId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'notify_type' -SchemaName dbo -Credential $Credential | Where-Object { $_.Name -eq $Name }
-                Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -Username $UserName -Password $SQLPass -AbortOnError
+                [int]$notifySystemId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'notificationsystem' -SchemaName dbo -Credential $Credential | Where-Object { $_.notifysystem_name -eq $Name }).notifysystem_id
             } catch {
-                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
+                Write-Host "Failed to add notification system name $Name to the database" -ForegroundColor Red
+                $DontGoFurther = $true
                 $Error[0]
             }
-
         } else {
+            try {
+                Write-Verbose "Attempting to add notification system name and description to databse for $Name to the database $DatabaseName on SQL Server $ServerInstance."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatementBasic -AbortOnError
+                Write-Verbose "Retrieving the notification system id from $DatabaseName for webapp $Name"
+                [int]$notifySystemId = (Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'notificationsystem' -SchemaName dbo | Where-Object { $_.notifysystem_name -eq $Name }).notifysystem_id
+
+            } catch {
+                Write-Host "Failed to add notification system name $Name to the database" -ForegroundColor Red
+                $DontGoFurther = $true
+                $Error[0]
+            }
+        }
+
+        if ($DontGoFurther) {
+            throw "Connot Continue"
+        }
+
+        if ($PSCmdlet.ParameterSetName -eq "Email") {
+            $FromAddress = $FromAddress.Trim(" ")
+
+            if ($UseSSL) {
+                $EncryptedConnection = 1
+            } else {
+                $EncryptedConnection = 0
+            }
+
+            if ($PSBoundParameters.ContainsKey("SMTPCredential")) {
+
+                $SMTPUsername = $SMTPCredential.UserName
+                $SMTPPassword = $SMTPCredential.GetNetworkCredential().Password
+
+                $sqlStatememntExtended = @"
+                INSERT INTO dbo.emailconfig
+                    (emailsettings_id, from_name, from_address, servername, smtpserver_username, smtpserver_password, port, usessl)
+                VALUES
+                    ($notifySystemId, `'$FromName`', `'$FromAddress`', `'$SMTPServer`', `'$SMTPUsername`', `'$SMTPPassword`', $Port, $EncryptedConnection)
+"@
+            } else {
+                $sqlStatememntExtended = @"
+                INSERT INTO dbo.emailconfig
+                    (emailsettings_id, from_name, from_address, servername, port, usessl)
+                VALUES
+                    ($notifySystemId, `'$FromName`', `'$FromAddress`', `'$SMTPServer`', $Port, $EncryptedConnection)
+"@
+            }
+        }
+
+        $sqlStatementBasicRemove = "DELETE FROM dbo.notificationsystem WHERE notifysystem_id = $notifySystemId"
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
 
             try {
-                Write-Verbose "Attempting to add information for $Name to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $BasicAppInfo -AbortOnError
-                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
-                [int]$webappId = Read-SqlTableData -ServerInstance $ServerInstance -DatabaseName $DatabaseName -TableName 'webapps' -SchemaName dbo | Where-Object { $_.Name -eq $Name }
-                Write-Verbose "Attempting to save expected test results for web app $Name"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestInfo -AbortOnError
-            } catch {
-                Write-Host "Failed to add Web App $Name to the database" -ForegroundColor Red
-                $Error[0]
-            }
+                $UserName = $Credential.UserName
+                $SQLPass = $Credential.GetNetworkCredential().Password
 
+                Write-Verbose "Attempting to save configuration information for notification system called $Name with specified credentials."
+                Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DatabaseName -Query $sqlStatememntExtended -Username $UserName -Password $SQLPass -AbortOnError
+                Write-Verbose "Successfully saved configuration information for $Name with specified credentials. "
+            } catch {
+                Write-Host "Failed to add configuration information to the database for $Name with the credential specified." -ForegroundColor Red
+                $Error[0]
+                Write-Verbose "Attempting to remove basic information for $Name with specified credentials."
+                Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DatabaseName -Query $sqlStatementBasicRemove -Username $UserName -Password $SQLPass -OutputSqlErrors $true
+
+            }
+        } else {
+            try {
+                Write-Verbose "Attempting to save configuration information for notification system called $Name."
+                Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DatabaseName -Query $sqlStatememntExtended -AbortOnError
+                Write-Verbose "Successfully added configuration information for $Name to the database."
+            } catch {
+                Write-Host "Failed to add configuration information to the database for $Name." -ForegroundColor Red
+                $Error[0]
+                Write-Verbose "Attempting to remove basic information for $Name"
+                Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DatabaseName -Query $sqlStatementBasicRemove -OutputSqlErrors $true
+            }
         }
 
 
