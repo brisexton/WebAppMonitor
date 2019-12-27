@@ -49,12 +49,15 @@ function Install-WAMDatabase {
     param(
 
         [Parameter()]
+        [ValidateNotNullorEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullorEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullorEmpty()]
         [pscredential]$Credential
     )
 
