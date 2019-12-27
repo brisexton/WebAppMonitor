@@ -95,6 +95,7 @@ function New-WAMNotificationSystem {
         [pscredential]$SMTPCredential,
 
         [Parameter(Mandatory, ParameterSetName = "Email")]
+        [ValidateRange(1, 32767)]
         [ValidateNotNullOrEmpty()]
         [int]$Port,
 
