@@ -1,6 +1,6 @@
 function Send-WAMNotification {
 
-<#
+    <#
     .SYNOPSIS
     Send's Notifications for Tests performed.
 
@@ -38,6 +38,7 @@ function Send-WAMNotification {
     }
     process {
 
+        $FromFullAddress = "$FromName <$FromAddress>"
     }
     end {
 
