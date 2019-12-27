@@ -38,23 +38,32 @@ CREATE TABLE [dbo].[apptestresults]
 )
 GO
 
-CREATE TABLE [dbo].[notify_type]
+CREATE TABLE [dbo].[notificationsystem]
 (
-    [notifytype_id] [int] NOT NULL,
-    [name] [nvarchar](10) NOT NULL,
-    [description] [nvarchar](100) NULL
-)
+    [notifysystem_id] [int] IDENTITY(1,1) NOT NULL,
+    [notifysystem_type] [nvarchar](10) NOT NULL,
+    [notifysystem_name] [nvarchar](20) NOT NULL,
+    [notifysystem_description] [nvarchar](100) NULL
+) ON [PRIMARY]
 GO
 
-INSERT INTO [dbo].[notify_type]
-    (notifytype_id, name, description)
-VALUES
-    (1, 'Email', 'SMTP Server Relay')
+CREATE TABLE [dbo].[notificationtype]
+(
+    [notifytype_id] [int] IDENTITY(1,1) NOT NULL,
+    [notifytype_name] [nvarchar](10) NOT NULL,
+    [notifytype_description] [nvarchar](100) NOT NULL
+) ON [PRIMARY]
+GO
 
-INSERT INTO [dbo].[notify_type]
-    (notifytype_id, name, description)
+INSERT INTO [dbo].[notificationtype]
+    (notifytype_name, notifytype_description)
 VALUES
-    (2, 'SMS', 'Text Messages')
+    ('Email', 'SMTP Server Relay')
+
+INSERT INTO [dbo].[notificationtype]
+    (notifytype_name, notifytype_description)
+VALUES
+    ('SMS', 'Text Messages')
 
 CREATE TABLE [dbo].[notification]
 (
@@ -68,6 +77,7 @@ GO
 CREATE TABLE [dbo].[emailconfig]
 (
     [emailsettings_id] [int] IDENTITY(1,1) NOT NULL,
+    [notifysystem_id] [int] NOT NULL,
     [from_name] [nvarchar] (50) NOT NULL,
     [from_address] [nvarchar](50) NOT NULL,
     [servername] [nvarchar](100) NOT NULL,
@@ -75,5 +85,5 @@ CREATE TABLE [dbo].[emailconfig]
     [smtpserver_password] [nvarchar](50) NULL,
     [port] [int] NOT NULL,
     [usessl] [bit] NOT NULL
-) ON [PRIMARY]
+)
 GO
