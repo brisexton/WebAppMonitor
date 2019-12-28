@@ -43,24 +43,31 @@ function New-WAMSQLLogin {
     Brian Sexton
 
 #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "UserAndPass")]
     param(
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ParameterSetName = "UserAndPass")]
         [ValidateNotNullOrEmpty()]
         [string]$SQLLoginUserName,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ParameterSetName = "UserAndPass")]
         [ValidateNotNullOrEmpty()]
         [securestring]$SQLLoginPassword,
 
+        [Parameter(Mandatory, ParameterSetName = "ByCredObj")]
+        [ValidateNotNullOrEmpty()]
+        [pscredential]$SQLLoginCredential,
+
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$Credential
 
     )
@@ -70,6 +77,7 @@ function New-WAMSQLLogin {
     }
     process {
 
+        Add-SqlLogin -ServerInstance $ServerInstance -DefaultDatabase $DatabaseName -LoginType SqlLogin -Enable -GrantConnectSql
 
 
     }
