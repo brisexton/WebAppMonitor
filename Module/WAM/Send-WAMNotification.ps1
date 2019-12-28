@@ -33,7 +33,9 @@ function Send-WAMNotification {
 
 
     .NOTES
-
+    Initial
+    12/27/2019
+    Brian Sexton
 
 #>
     [CmdletBinding()]
@@ -41,12 +43,15 @@ function Send-WAMNotification {
 
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$Credential
 
     )
