@@ -38,8 +38,28 @@ function Test-WAMWebApp {
 
 
 #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ById')]
     param (
+
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'ByObject')]
+        [ValidateNotNullOrEmpty()]
+        [pscustomObject]$WebAppObject,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [ValidateNotNullOrEmpty()]
+        [int]$WebAppId,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Uri,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Method,
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [ValidateNotNullOrEmpty()]
+        [int]$StatusCode,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -61,8 +81,10 @@ function Test-WAMWebApp {
     process {
 
 
+        $Request = Invoke-WebRequest -Uri $Uri -Method $Method
 
-        Invoke-RestMethod -uri $uri -Method Get -Headers $headers
+
+        #Invoke-RestMethod -Uri $Uri -Method $Method
 
     }
 
