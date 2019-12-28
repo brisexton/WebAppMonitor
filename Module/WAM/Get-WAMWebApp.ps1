@@ -47,6 +47,7 @@ function Get-WAMWebApp {
 
 #>
     [CmdletBinding(DefaultParameterSetName = "ByName")]
+    [OutputType([PSCustomObject])]
     param(
 
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "ByName")]
@@ -91,7 +92,19 @@ function Get-WAMWebApp {
                 $SQLPass = $Credential.GetNetworkCredential().Password
 
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -Credential $Credential -OutputAs DataRows -AbortOnError
+                $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -Credential $Credential -OutputAs DataRows -AbortOnError
+                foreach ($row in $Output) {
+                    $obj = New-Object PSCustomObject -Property ([ordered] @{
+                            WebAppId      = [int]$row.webapp_id
+                            Name          = [string]$row.name
+                            Description   = [string]$row.description
+                            Uri           = [string]$row.uri
+                            StatusCode    = [int]$row.status_code
+                            PostBody      = [string]$row.post_body
+                            MonitorActive = [bool]$row.monitor_active
+                        })
+                    Write-Output $obj
+                }
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
@@ -100,7 +113,20 @@ function Get-WAMWebApp {
         } else {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                foreach ($row in $Output) {
+                    $obj = New-Object PSCustomObject -Property ([ordered] @{
+                            WebAppId      = [int]$row.webapp_id
+                            Name          = [string]$row.name
+                            Description   = [string]$row.description
+                            Uri           = [string]$row.uri
+                            StatusCode    = [int]$row.status_code
+                            PostBody      = [string]$row.post_body
+                            MonitorActive = [bool]$row.monitor_active
+                        })
+                    Write-Output $obj
+                }
+
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
