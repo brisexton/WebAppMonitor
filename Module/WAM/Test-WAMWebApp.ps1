@@ -6,7 +6,20 @@ function Test-WAMWebApp {
     .DESCRIPTION
 
 
-    .PARAMETER
+    .PARAMETER WebAppObject
+
+
+    .PARAMETER WebAppId
+
+
+    .PARAMETER Uri
+
+
+    .PARAMETER Method
+
+
+    .PARAMETER StatusCode
+
 
     .PARAMETER DatabaseName
     The name of the database used by WebAppMonitor. The default value is
@@ -38,7 +51,8 @@ function Test-WAMWebApp {
 
 
 #>
-    [CmdletBinding(DefaultParameterSetName = 'ById')]
+    [CmdletBinding(DefaultParameterSetName = 'ByObject')]
+    [OutputType([PSCustomObject])]
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'ByObject')]
@@ -81,10 +95,39 @@ function Test-WAMWebApp {
     process {
 
 
-        $Request = Invoke-WebRequest -Uri $Uri -Method $Method
+        $StartTime = [datetime](Get-Date)
 
+        If ($PSCmdlet.ParameterSetName -eq 'ByObject') {
+            $ExpectedReturnStatusCode = $WebAppObject.StatusCode
+            $WebAppId = $WebAppObject.WebAppId
+            $Request = Invoke-WebRequest -Uri $WebAppObject.Uri -Method $WebAppObject.Method
 
-        #Invoke-RestMethod -Uri $Uri -Method $Method
+        }
+
+        if ($PSCmdlet.ParameterSetName -eq 'ById') {
+            $ExpectedReturnStatusCode = $StatusCode
+            $Request = Invoke-WebRequest -Uri $Uri -Method $Method
+        }
+
+        If ($Request.StatusCode -eq $ExpectedReturnStatusCode) {
+            $TestResultIsFailure = $false
+        } else {
+            $TestResultIsFailure = $true
+        }
+
+        $EndTime = [datetime](Get-Date)
+
+        $obj = New-Object -TypeName PSCustomObject ([ordered] @{
+                WebAppId           = $WebAppId
+                ExpectedStatusCode = $ExpectedReturnStatusCode
+                ReturnedStatusCode = $Request.StatusCode
+                StartTime          = $StartTime
+                EndTime            = $EndTime
+                Failure            = $TestResultIsFailure
+            })
+
+        Write-Output $obj
+
 
     }
 
