@@ -7,19 +7,19 @@ function Test-WAMWebApp {
 
 
     .PARAMETER WebAppObject
-
+    An object which includes all of the Web App info to run tests against.
 
     .PARAMETER WebAppId
-
+    The id of the WebApp as it's known in the database.
 
     .PARAMETER Uri
-
+    The Uri to run the tests against.
 
     .PARAMETER Method
-
+    The HTTP verb which shall be invoked against the Uri.
 
     .PARAMETER StatusCode
-
+    The status code that should be returned by the HTTP server.
 
     .PARAMETER DatabaseName
     The name of the database used by WebAppMonitor. The default value is
@@ -45,6 +45,10 @@ function Test-WAMWebApp {
 
 
     .NOTES
+    Update
+    1/2/2020
+    Brian Sexton
+
     Initial
     12/27/2019
     Brian Sexton
