@@ -99,7 +99,7 @@ function Get-WAMWebApp {
                             Name          = [string]$row.name
                             Description   = [string]$row.description
                             Uri           = [string]$row.uri
-                            Method        = [string]$row.Method
+                            Method        = [string]$row.Method.Trim()
                             StatusCode    = [int]$row.status_code
                             PostBody      = [string]$row.post_body
                             MonitorActive = [bool]$row.monitor_active
@@ -121,7 +121,7 @@ function Get-WAMWebApp {
                             Name          = [string]$row.name
                             Description   = [string]$row.description
                             Uri           = [string]$row.uri
-                            Method        = [string]$row.Method
+                            Method        = [string]$row.Method.Trim()
                             StatusCode    = [int]$row.status_code
                             PostBody      = [string]$row.post_body
                             MonitorActive = [bool]$row.monitor_active
