@@ -1,3 +1,4 @@
+#Requires -RunAsAdministrator
 function Uninstall-WAMDatabase {
 
     <#
@@ -17,9 +18,18 @@ function Uninstall-WAMDatabase {
     .PARAMETER Credential
     SQL Login credentials to connect to the SQL Server Instance.
 
+    .EXAMPLE
+    Uninstall-WAMDatabase
+
+    Uses Integrated Authentication with the credentials from the currently
+    logged on user and connnects to the default instance on localhost
+    and drops the database with the default name of WebAppMonitor.
 
     .EXAMPLE
+    Uninstall-WAMDatabase -ServerInstance 'SERVER1\SQL'
 
+    Connects to named SQL Server Instance 'SQL' running on SERVER1 using
+    Integrated Authentication and drops the database named WebAppMonitor.
 
     .INPUTS
 
