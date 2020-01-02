@@ -21,17 +21,6 @@ function Test-WAMWebApp {
     .PARAMETER StatusCode
     The status code that should be returned by the HTTP server.
 
-    .PARAMETER DatabaseName
-    The name of the database used by WebAppMonitor. The default value is
-    WebAppMonitor.
-
-    .PARAMETER ServerInstance
-    The Instance of SQL Server where the database is located.
-
-    .PARAMETER Credential
-    SQL Login credentials to connect to the SQL Server Instance.
-
-
     .EXAMPLE
 
 
@@ -55,7 +44,7 @@ function Test-WAMWebApp {
 
 
 #>
-    [CmdletBinding(DefaultParameterSetName = 'ByObject')]
+    [CmdletBinding(DefaultParameterSetName = 'ById')]
     [OutputType([PSCustomObject])]
     param (
 
@@ -77,19 +66,8 @@ function Test-WAMWebApp {
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
-        [int]$StatusCode,
+        [int]$StatusCode
 
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [string]$DatabaseName = "WebAppMonitor",
-
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [string]$ServerInstance = $env:COMPUTERNAME,
-
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [pscredential]$Credential
     )
 
     begin {
@@ -121,7 +99,7 @@ function Test-WAMWebApp {
 
         $EndTime = [datetime](Get-Date)
 
-        $obj = New-Object -TypeName PSCustomObject ([ordered] @{
+        $obj = New-Object -TypeName PSCustomObject -Property ([ordered] @{
                 WebAppId           = $WebAppId
                 ExpectedStatusCode = $ExpectedReturnStatusCode
                 ReturnedStatusCode = $Request.StatusCode
