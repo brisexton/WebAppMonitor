@@ -17,6 +17,9 @@ function New-WAMNotification {
     This establishes a link between the notification addresse and the
     system to be used for sending the notification/alert.
 
+    .PARAMETER WebAppObject
+
+
     .PARAMETER WebAppId
     The ID number of the Web Application which is being monitored that you
     want to alert on.
@@ -24,6 +27,9 @@ function New-WAMNotification {
     .PARAMETER WebAppName
     The Name of the Web Application which is being monitored that you
     want to alert on.
+
+    .PARAMETER All
+
 
     .PARAMETER DatabaseName
     The name of the database used by WebAppMonitor. The default value is
@@ -76,7 +82,7 @@ function New-WAMNotification {
 
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ByObject")]
         [ValidateNotNullOrEmpty()]
-        [pscustomobject]$WebAppObj,
+        [pscustomobject]$WebAppObject,
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "ById")]
         [ValidateNotNullOrEmpty()]
