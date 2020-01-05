@@ -5,7 +5,8 @@ function Get-WAMNotificationSystem {
     Retrieve configuration for a alerting/notification system.
 
     .DESCRIPTION
-
+    Retrieves configuration information for SMTP servers or SMS services. BY default,
+    the cmdlet doesn't return passwords or API secrets.
 
     .PARAMETER Name
     Friendly name for the notification/alerting system.
@@ -36,6 +37,10 @@ function Get-WAMNotificationSystem {
 
 
     .NOTES
+    Update
+    1/5/2020
+    Brian Sexton
+
     Initial
     12/16/2019
     Brian Sexton
@@ -46,19 +51,24 @@ function Get-WAMNotificationSystem {
 
         [Parameter()]
         [ValidateLength(1, 20)]
+        [ValidateNotNullOrEmpty()]
         [string]$Name,
 
         [Parameter()]
         [ValidateSet('Email', 'SMS')]
+        [ValidateNotNullOrEmpty()]
         [string]$SystemType = 'Email',
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$Credential
 
     )
@@ -87,11 +97,10 @@ function Get-WAMNotificationSystem {
             try {
                 Write-Verbose "Attempting to retrieve email configuration settings."
                 if ($PSBoundParameters.ContainsKey("Name")) {
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
+                    $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
                 } else {
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                    $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                 }
-
             } catch {
                 Write-Host "Failed to execute Sql Query $sqlStatement against database $DatabaseName on instance $ServerInstance with specified credentials." -ForegroundColor Red
                 $Error[0]
@@ -100,15 +109,38 @@ function Get-WAMNotificationSystem {
             try {
                 Write-Verbose "Attempting to retrieve email configuration settings."
                 if ($PSBoundParameters.ContainsKey("Name")) {
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
+                    $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError | Where-Object { $_.notifysystem_name -like "*$Name*" }
                 } else {
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError
+                    $Output = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlStatement -OutputAs DataRows -AbortOnError
                 }
             } catch {
                 Write-Host "Failed to execute Sql Query $sqlStatement against database $DatabaseName on instance $ServerInstance." -ForegroundColor Red
                 $Error[0]
             }
         }
+
+        switch ($SystemType) {
+            "Email" {
+                foreach ($row in $Output) {
+                    $obj = New-Object PSCustomObject -Property ([ordered] @{
+                            SMTPSystemId = [int]$row.emailsettings_id
+                            Name         = [string]$row.notifysystem_name
+                            Description  = [string]$row.notifysystem_description
+                            FromName     = [string]$row.from_name
+                            FromAddress  = [string]$row.from_address
+                            SMTPServer   = [string]$row.servername
+                            SMTPUsername = [string]$row.smtpserver_username
+                            Port         = [int]$row.port
+                            UseSSL       = [bool]$row.usessl
+                        })
+                    Write-Output $obj
+                }
+                break;
+            }
+            "SMS" { throw; }
+            default { Write-Host "DEFAULT HIT!" -ForegroundColor Red; throw; }
+        }
+
 
     }
     end {
