@@ -52,19 +52,19 @@ function Test-WAMWebApp {
         [ValidateNotNullOrEmpty()]
         [pscustomObject]$WebAppObject,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [int]$WebAppId,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [string]$Uri,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [string]$Method,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [int]$StatusCode
 
