@@ -148,6 +148,17 @@ function Install-WAMDatabase {
         )
         GO
 
+        CREATE TABLE [dbo].[notifyee]
+        (
+            [notification_id] [int] IDENTITY(1,1) NOT NULL,
+            [notifysystem_id] [int] NULL,
+            [notification_targetname] [nvarchar](50) NULL,
+            [notification_targetaddress] [nvarchar](100) NULL,
+            [notification_targetdescription] [nvarchar](150) NULL,
+            [notification_systemtype] [nvarchar](5) NOT NULL
+        ) ON [PRIMARY]
+        GO
+
         CREATE VIEW [dbo].[appinfo]
             AS
                 SELECT dbo.webapps.*, dbo.apptests.status_code, dbo.apptests.method, dbo.apptests.post_body
