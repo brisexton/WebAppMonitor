@@ -17,6 +17,8 @@ function New-WAMNotification {
     This establishes a link between the notification addresse and the
     system to be used for sending the notification/alert.
 
+    .PARAMETER NotificationSystemId
+
     .PARAMETER WebAppObject
 
 
@@ -28,7 +30,9 @@ function New-WAMNotification {
     The Name of the Web Application which is being monitored that you
     want to alert on.
 
-    .PARAMETER All
+    .PARAMETER AllWebApps
+
+    .PARAMETER Enabled
 
 
     .PARAMETER DatabaseName
@@ -64,7 +68,7 @@ function New-WAMNotification {
     Brian Sexton
 
 #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
 
         [Parameter(Mandatory)]
@@ -80,6 +84,10 @@ function New-WAMNotification {
         [ValidateNotNullOrEmpty()]
         [string]$NotificationType,
 
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [int]$NotificationSystemId,
+
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ByObject")]
         [ValidateNotNullOrEmpty()]
         [pscustomobject]$WebAppObject,
@@ -94,7 +102,11 @@ function New-WAMNotification {
 
         [Parameter(Mandatory, ParameterSetName = "All")]
         [ValidateNotNullOrEmpty()]
-        [switch]$All,
+        [switch]$AllWebApps,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [switch]$Enabled,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
