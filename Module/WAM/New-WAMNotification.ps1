@@ -62,28 +62,44 @@ function New-WAMNotification {
     param(
 
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string]$Name,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$Description,
 
         [Parameter(Mandatory)]
         [ValidateSet('Email', 'SMS')]
+        [ValidateNotNullOrEmpty()]
         [string]$NotificationType,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "WebAppId")]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ByObject")]
+        [ValidateNotNullOrEmpty()]
+        [pscustomobject]$WebAppObj,
+
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "ById")]
+        [ValidateNotNullOrEmpty()]
         [int[]]$WebAppId,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "WebAppName")]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "ByName")]
+        [ValidateNotNullOrEmpty()]
         [string[]]$WebAppName,
 
+        [Parameter(Mandatory, ParameterSetName = "All")]
+        [ValidateNotNullOrEmpty()]
+        [switch]$All,
+
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$DatabaseName = "WebAppMonitor",
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string]$ServerInstance = $env:COMPUTERNAME,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [pscredential]$Credential
 
 
