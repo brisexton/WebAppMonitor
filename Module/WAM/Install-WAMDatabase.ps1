@@ -155,7 +155,8 @@ function Install-WAMDatabase {
             [notification_targetname] [nvarchar](50) NULL,
             [notification_targetaddress] [nvarchar](100) NULL,
             [notification_targetdescription] [nvarchar](150) NULL,
-            [notification_systemtype] [nvarchar](5) NOT NULL
+            [notification_systemtype] [nvarchar](5) NOT NULL,
+            [enabled] [bit] NOT NULL
         ) ON [PRIMARY]
         GO
 
