@@ -138,6 +138,7 @@ function New-WAMNotification {
 
 
         if ($PSBoundParameters.ContainsKey("Description")) {
+            $Description = $Description -replace "'", ""
             $sqlQuery = @"
         INSERT INTO dbo.notifyee
             (,  )
