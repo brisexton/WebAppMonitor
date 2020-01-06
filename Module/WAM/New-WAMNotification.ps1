@@ -105,7 +105,6 @@ function New-WAMNotification {
         [switch]$AllWebApps,
 
         [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [switch]$Enabled,
 
         [Parameter()]
@@ -133,6 +132,7 @@ function New-WAMNotification {
             "SMS" { $NotificationSystemTypeId = 2; break; }
             default { Write-Host "DEFAULT HIT" -ForegroundColor Red; throw }
         }
+
 
 
 
