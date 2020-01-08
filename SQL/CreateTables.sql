@@ -9,7 +9,7 @@ CREATE TABLE [dbo].[webapps]
     [uri] [nvarchar](160) NOT NULL,
     [monitor_active] [bit] NOT NULL
 ) ON [PRIMARY]
-GO
+        GO
 
 CREATE TABLE [dbo].[headers]
 (
@@ -17,7 +17,7 @@ CREATE TABLE [dbo].[headers]
     [header_key] [nvarchar](100) NULL,
     [header_value] [nvarchar](100) NULL
 )
-GO
+        GO
 
 CREATE TABLE [dbo].[apptests]
 (
@@ -27,16 +27,16 @@ CREATE TABLE [dbo].[apptests]
     [method] [char](7) NOT NULL,
     [post_body] [text] NULL
 ) ON [PRIMARY]
-GO
+        GO
 
 CREATE TABLE [dbo].[apptestresults]
 (
     [webapp_id] [int] NOT NULL,
-    [start_time] [datetime] NOT NULL,
-    [end_time] [datetime] NULL,
+    [start_time] [smalldatetime] NOT NULL,
+    [end_time] [smalldatetime] NULL,
     [failure] [bit] NOT NULL
 )
-GO
+        GO
 
 CREATE TABLE [dbo].[notificationsystem]
 (
@@ -45,7 +45,7 @@ CREATE TABLE [dbo].[notificationsystem]
     [notifysystem_name] [nvarchar](20) NOT NULL,
     [notifysystem_description] [nvarchar](100) NULL
 ) ON [PRIMARY]
-GO
+        GO
 
 CREATE TABLE [dbo].[notificationtype]
 (
@@ -53,7 +53,7 @@ CREATE TABLE [dbo].[notificationtype]
     [notifytype_name] [nvarchar](10) NOT NULL,
     [notifytype_description] [nvarchar](100) NOT NULL
 ) ON [PRIMARY]
-GO
+        GO
 
 INSERT INTO [dbo].[notificationtype]
     (notifytype_name, notifytype_description)
@@ -69,10 +69,11 @@ CREATE TABLE [dbo].[notification]
 (
     [notification_id] [int] IDENTITY(1,1) NOT NULL,
     [webapp_id] [int] NOT NULL,
-    [notification_type] [nvarchar](100) NULL,
+    [notifyee_id] [int] NOT NULL,
+    [notification_subject] [nvarchar](100) NULL,
     [notification_message] [nvarchar](max) NULL
 ) ON [PRIMARY]
-GO
+        GO
 
 CREATE TABLE [dbo].[emailconfig]
 (
@@ -86,7 +87,7 @@ CREATE TABLE [dbo].[emailconfig]
     [port] [int] NOT NULL,
     [usessl] [bit] NOT NULL
 )
-GO
+        GO
 
 CREATE TABLE [dbo].[notifyee]
 (
@@ -98,4 +99,4 @@ CREATE TABLE [dbo].[notifyee]
     [notification_systemtype] [int] NOT NULL,
     [enabled] [bit] NOT NULL
 ) ON [PRIMARY]
-GO
+        GO
