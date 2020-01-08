@@ -100,11 +100,11 @@ function New-WAMNotification {
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "ById")]
         [ValidateNotNullOrEmpty()]
-        [int[]]$WebAppId,
+        [int]$WebAppId,
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "ByName")]
         [ValidateNotNullOrEmpty()]
-        [string[]]$WebAppName,
+        [string]$WebAppName,
 
         [Parameter(Mandatory, ParameterSetName = "All")]
         [ValidateNotNullOrEmpty()]
@@ -147,13 +147,7 @@ function New-WAMNotification {
             $Active = 0
         }
 
-        switch ($PSCmdlet.ParameterSetName) {
-            "ByObject" { }
-            "ById" { }
-            "ByName" { }
-            "All" { }
-            default { Write-Host "DEFAULT HIT" -ForegroundColor Red; throw }
-        }
+
 
         if ($PSBoundParameters.ContainsKey("Description")) {
             $Description = $Description -replace "'", ""
@@ -172,16 +166,47 @@ function New-WAMNotification {
 "@
         }
 
+        $sqlQueryCheckExisting = "SELECT [notification_id], [notification_targetaddress] FROM [dbo].[notifyee] WHERE notification_targetaddress LIKE '%$Destination%'"
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
+            $SQLLoginUserName = $Credential.UserName
+            $SQLLoginPassword = $Credential.GetNetworkCredential().Password
+
+            try {
+                Write-Verbose "Checking for existing target address named $Destination in the $DatabaseName database on $ServerInstance with specified credentials."
+                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                if ($Result.Count -ige 1) {
+                    Write-Host "The target address $Destination already exists in the database."
+                    throw;
+                }
+            } catch {
+                $Error[0]
+                throw;
+            }
+
+        } else {
+            try {
+                Write-Verbose "Checking for existing target address named $Destination in the $DatabaseName database on $ServerInstance with specified credentials."
+                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                if ($Result.Count -ige 1) {
+                    Write-Host "The target address $Destination already exists in the database."
+                    throw;
+                }
+            } catch {
+                $Error[0]
+                throw;
+            }
+        }
+
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
             try {
-
-                $UserName = $Credential.UserName
-                $SQLPass = $Credential.GetNetworkCredential().Password
-
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -OutputAs DataRows -AbortOnError
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
+                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError).notification_id
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to retrieve the NotifyeeID with specified credential."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
@@ -191,12 +216,55 @@ function New-WAMNotification {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to insert data."
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -OutputAs DataRows -AbortOnError).notification_id
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to retrieve the NotifyeeID."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
             }
         }
 
+        switch ($PSCmdlet.ParameterSetName) {
+            "ByObject" {
+                $WebAppId = $WebAppObject.WebAppId
+                $sqlQuery = "INSERT INTO dbo.notificationalerts (webapp_id, notifyee_id) VALUES ( $WebAppId, $notifyeeId )"
+            }
+            "ById" {
+
+
+            }
+            "ByName" {
+                $sqlQuery = "SELECT * FROM [dbo].[webapps] WHERE name LIKE %$Name%"
+            }
+            "All" { $sqlQuery = 'SELECT * FROM [dbo].[webapps]'; break; }
+            default { Write-Host "DEFAULT HIT" -ForegroundColor Red; throw }
+        }
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
+
+            try {
+
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
+
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
+
+
+
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        } else {
+            try {
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to insert data."
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        }
 
 
     }
