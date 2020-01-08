@@ -129,7 +129,8 @@ function Install-WAMDatabase {
         CREATE TABLE [dbo].[notification](
             [notification_id] [int] IDENTITY(1,1) NOT NULL,
             [webapp_id] [int] NOT NULL,
-            [notification_type] [nvarchar](100) NULL,
+            [notifyee_id] [int] NOT NULL,
+            [notification_subject] [nvarchar](100) NULL,
             [notification_message] [nvarchar](max) NULL
         ) ON [PRIMARY]
         GO
