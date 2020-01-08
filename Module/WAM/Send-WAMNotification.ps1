@@ -41,6 +41,9 @@ function Send-WAMNotification {
     [CmdletBinding()]
     param(
 
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
+        [PSCustomObject]$TestResultObj,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -60,6 +63,33 @@ function Send-WAMNotification {
 
     }
     process {
+
+        $WebAppId = $TestResultObj.WebAppId
+        $TestStartTime = $TestResultObj.StartTime
+        $TestEndTime = $TestResultObj.EndTime
+
+        if ($PSBoundParameters.ContainsKey("Credential")) {
+            try {
+
+                $UserName = $Credential.UserName
+                $SQLPass = $Credential.GetNetworkCredential().Password
+
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -OutputAs DataRows -AbortOnError
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        } else {
+            try {
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+            } catch {
+                Write-Host "Failed to Execute Query" -ForegroundColor Red
+                $Error[0]
+            }
+        }
 
         $FromFullAddress = "$FromName <$FromAddress>"
     }
