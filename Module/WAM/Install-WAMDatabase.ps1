@@ -99,8 +99,8 @@ function Install-WAMDatabase {
 
         CREATE TABLE [dbo].[apptestresults](
             [webapp_id] [int] NOT NULL,
-            [start_time] [datetime] NOT NULL,
-            [end_time] [datetime] NULL,
+            [start_time] [smalldatetime] NOT NULL,
+            [end_time] [smalldatetime] NULL,
             [failure] [bit] NOT NULL
         )
         GO
