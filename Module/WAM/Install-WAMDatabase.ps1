@@ -126,6 +126,14 @@ function Install-WAMDatabase {
         INSERT INTO [dbo].[notificationtype] (notifytype_name, notifytype_description)
         VALUES ('SMS', 'Text Messages')
 
+        CREATE TABLE [dbo].[notificationalerts]
+        (
+            [notification_id] [int] IDENTITY(1,1) NOT NULL,
+            [webapp_id] [int] NOT NULL,
+            [notifyee_id] [int] NOT NULL
+        ) ON [PRIMARY]
+        GO
+
         CREATE TABLE [dbo].[notification](
             [notification_id] [int] IDENTITY(1,1) NOT NULL,
             [webapp_id] [int] NOT NULL,
