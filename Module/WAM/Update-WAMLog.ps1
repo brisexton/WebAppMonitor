@@ -51,6 +51,7 @@ function Update-WAMLog {
 
 #>
     [CmdletBinding(DefaultParameterSetName = 'ByObject')]
+    [OutputType([PSCustomObject])]
     param(
 
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'ByObject')]
@@ -94,6 +95,7 @@ function Update-WAMLog {
 
 
 
+
         If ($PSCmdlet.ParameterSetName -eq 'ByObject') {
             $WebAppId = $TestResultObj.WebAppId
             [string]$StartTime = "{0:yyyy-MM-dd HH:mm:ss}" -f $TestResultObj.StartTime
@@ -133,7 +135,9 @@ function Update-WAMLog {
                 Write-Verbose "Attempting to add information for app id $WebAppId to the database $DatabaseName on SQL Server $ServerInstance with the credentials specified."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestResults -Username $SQLLoginUserName -Password $SQLLoginPassword -AbortOnError
                 Write-Verbose "Successfully saved information for app id $WebAppId to the $DatabaseName on Server $ServerInstance with the credentials specified."
+                $LoggedToDatabase = $true
             } catch {
+                $LoggedToDatabase = $false
                 Write-Host "Failed to add test results to the database with specified credentials." -ForegroundColor Red
                 $Error[0]
             }
@@ -143,14 +147,21 @@ function Update-WAMLog {
                 Write-Verbose "Attempting to add information for app id $WebAppId to the database $DatabaseName on SQL Server $ServerInstance."
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestResults -AbortOnError
                 Write-Verbose "Successfully saved information app id $WebAppId to the $DatabaseName on Server $ServerInstance"
+                $LoggedToDatabase = $true
             } catch {
+                $LoggedToDatabase = $false
                 Write-Host "Failed to add test results to the database." -ForegroundColor Red
                 $Error[0]
             }
         }
-
+        $obj = New-Object -TypeName PSCustomObject -Property ([ordered]@{
+                WebAppId    = $WebAppId
+                StartTime   = $StartTime
+                EndTime     = $EndTime
+                TestFailure = [bool]$TestResult
+            })
+        Write-Output $obj
     }
-
     end {
     }
 }
