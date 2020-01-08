@@ -155,10 +155,10 @@ function Update-WAMLog {
             }
         }
         $obj = New-Object -TypeName PSCustomObject -Property ([ordered]@{
-                WebAppId    = $WebAppId
-                StartTime   = $StartTime
-                EndTime     = $EndTime
-                TestFailure = [bool]$TestResult
+                WebAppId  = $WebAppId
+                StartTime = $StartTime
+                EndTime   = $EndTime
+                Failure   = [bool]$TestResult
             })
         Write-Output $obj
     }
