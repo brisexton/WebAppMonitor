@@ -57,19 +57,19 @@ function Update-WAMLog {
         [ValidateNotNullOrEmpty()]
         [pscustomObject]$TestResultObj,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [int]$WebAppId,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [datetime]$StartTime,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [datetime]$EndTime,
 
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ById')]
         [ValidateNotNullOrEmpty()]
         [bool]$Failure,
 
@@ -94,34 +94,34 @@ function Update-WAMLog {
 
 
 
-
         If ($PSCmdlet.ParameterSetName -eq 'ByObject') {
             $WebAppId = $TestResultObj.WebAppId
-            $StartTime = $TestResultObj.StartTime
-            $EndTime = $TestResultObj.EndTime
-            if ($TestResultObj.TestResultIsFailure) {
+            [string]$StartTime = "{0:yyyy-MM-dd HH:mm:ss}" -f $TestResultObj.StartTime
+            [string]$EndTime = "{0:yyyy-MM-dd HH:mm:ss}" -f $TestResultObj.EndTime
+            if ($TestResultObj.Failure) {
                 $TestResult = 1
             } else {
                 $TestResult = 0
             }
-
         }
 
 
         if ($PSCmdlet.ParameterSetName -eq 'ById') {
+            [string]$StartTime = "{0:yyyy-MM-dd HH:mm:ss}" -f $StartTime
+            [string]$EndTime = "{0:yyyy-MM-dd HH:mm:ss}" -f $EndTime
+
             if ($Faliure) {
                 $TestResult = 1
             } else {
                 $TestResult = 0
             }
-
         }
 
         $AppTestResults = @"
-            INSERT INTO dbo.webapps
+            INSERT INTO dbo.apptestresults
                 (webapp_id, start_time, end_time, failure)
             VALUES
-              ($WebAppId, $StartTime, $EndTime, $Failure)
+              ($WebAppId, '$StartTime', '$EndTime', $TestResult)
 "@
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
@@ -141,16 +141,13 @@ function Update-WAMLog {
 
             try {
                 Write-Verbose "Attempting to add information for app id $WebAppId to the database $DatabaseName on SQL Server $ServerInstance."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestResults -ErrorAction Stop
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $AppTestResults -AbortOnError
                 Write-Verbose "Successfully saved information app id $WebAppId to the $DatabaseName on Server $ServerInstance"
-                Write-Verbose "Retrieving the webapp id from $DatabaseName for webapp $Name"
             } catch {
                 Write-Host "Failed to add test results to the database." -ForegroundColor Red
                 $Error[0]
             }
         }
-
-
 
     }
 
