@@ -17,7 +17,7 @@ function New-WAMNotification {
     This establishes a link between the notification addresse and the
     system to be used for sending the notification/alert.
 
-    .PARAMETER NotificationSystemId
+    .PARAMETER Destination
 
     .PARAMETER WebAppObject
 
@@ -86,7 +86,7 @@ function New-WAMNotification {
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [int]$NotificationSystemId,
+        [string]$Destination,
 
         [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ByObject")]
         [ValidateNotNullOrEmpty()]
@@ -104,7 +104,7 @@ function New-WAMNotification {
         [ValidateNotNullOrEmpty()]
         [switch]$AllWebApps,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
         [switch]$Enabled,
 
         [Parameter()]
@@ -135,22 +135,34 @@ function New-WAMNotification {
 
 
 
+        if ($PSBoundParameters.ContainsKey("Enabled")) {
+            $Active = 1
+        } else {
+            $Active = 0
+        }
 
+        switch ($PSCmdlet.ParameterSetName) {
+            "ByObject" { }
+            "ById" { }
+            "ByName" { }
+            "All" { }
+            default { Write-Host "DEFAULT HIT" -ForegroundColor Red; throw }
+        }
 
         if ($PSBoundParameters.ContainsKey("Description")) {
             $Description = $Description -replace "'", ""
             $sqlQuery = @"
-        INSERT INTO dbo.notifyee
-            (,  )
-
-
+            INSERT INTO dbo.notifyee
+                (notifysystem_id, notification_targetname, notification_targetaddress, notification_targetdescription, notification_systemtype, enabled)
+            VALUES
+                ($NotificationSystemId, '$Name', '$Destination', '$Description', $NotificationSystemTypeId, $Active)
 "@
         } else {
             $sqlQuery = @"
-        INSERT INTO dbo.notifyee
-            (Name,  )
-
-
+            INSERT INTO dbo.notifyee
+                (notifysystem_id, notification_targetname, notification_targetaddress, notification_systemtype, enabled)
+            VALUES
+                ($NotificationSystemId, '$Name', '$Destination', $NotificationSystemTypeId, $Active)
 "@
         }
 
@@ -172,6 +184,7 @@ function New-WAMNotification {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to insert data."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
