@@ -17,6 +17,8 @@ function New-WAMNotification {
     This establishes a link between the notification addresse and the
     system to be used for sending the notification/alert.
 
+    .PARAMETER NotificationSystemId
+
     .PARAMETER Destination
 
     .PARAMETER WebAppObject
@@ -83,6 +85,10 @@ function New-WAMNotification {
         [ValidateSet('Email', 'SMS')]
         [ValidateNotNullOrEmpty()]
         [string]$NotificationType,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [int]$NotificationSystemId,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
