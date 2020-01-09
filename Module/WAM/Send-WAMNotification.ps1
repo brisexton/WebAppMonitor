@@ -9,6 +9,7 @@ function Send-WAMNotification {
 
     .PARAMETER
 
+
     .PARAMETER DatabaseName
     The name of the database used by WebAppMonitor. The default value is
     WebAppMonitor.
@@ -64,36 +65,53 @@ function Send-WAMNotification {
     }
     process {
 
-        $WebAppId = $TestResultObj.WebAppId
-        $TestStartTime = $TestResultObj.StartTime
-        $TestEndTime = $TestResultObj.EndTime
+        if ($TestResultObj.Failure) {
 
-        if ($PSBoundParameters.ContainsKey("Credential")) {
-            try {
+            $WebAppId = $TestResultObj.WebAppId
+            $TestStartTime = $TestResultObj.StartTime
+            $TestEndTime = $TestResultObj.EndTime
 
+
+            if ($PSBoundParameters.ContainsKey("Credential")) {
                 $UserName = $Credential.UserName
                 $SQLPass = $Credential.GetNetworkCredential().Password
+            }
 
-                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -OutputAs DataRows -AbortOnError
-                Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
-            } catch {
-                Write-Host "Failed to Execute Query" -ForegroundColor Red
-                $Error[0]
+            $sqlQuery = @"
+
+"@
+
+            if ($PSBoundParameters.ContainsKey("Credential")) {
+
+                try {
+                    Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -OutputAs DataRows -AbortOnError
+                    Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
+                } catch {
+                    Write-Host "Failed to Execute Query" -ForegroundColor Red
+                    $Error[0]
+                }
+
+            } else {
+
+                try {
+                    Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                } catch {
+                    Write-Host "Failed to Execute Query" -ForegroundColor Red
+                    $Error[0]
+                }
             }
-        } else {
-            try {
-                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
-            } catch {
-                Write-Host "Failed to Execute Query" -ForegroundColor Red
-                $Error[0]
+
+            $FromFullAddress = "$FromName <$FromAddress>"
+
+            foreach ($EmailDestination in $EmailDestinations) {
+                Send-MailMessage -To "$EmailDestination" -From $FromFullAddress -Body $MessageBody -BodyAsHtml -Priority High -SmtpServer $SMTPServer -Port $SMTPPort -Credential $SMTPCredentail -UseSsl
             }
+
+
         }
-
-        $FromFullAddress = "$FromName <$FromAddress>"
     }
     end {
-
     }
 }
