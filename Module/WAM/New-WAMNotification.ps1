@@ -166,7 +166,7 @@ function New-WAMNotification {
 "@
         }
 
-        $sqlQueryCheckExisting = "SELECT [notification_id], [notification_targetaddress] FROM [dbo].[notifyee] WHERE notification_targetaddress LIKE '%$Destination%'"
+        $sqlQueryCheckExisting = "SELECT [notification_id], [notification_targetaddress] FROM [dbo].[notifyee] WHERE notification_targetaddress LIKE `'%$Destination%`'"
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
             $SQLLoginUserName = $Credential.UserName
