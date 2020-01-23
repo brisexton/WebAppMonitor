@@ -77,15 +77,16 @@ function Send-WAMNotification {
                 $SQLPass = $Credential.GetNetworkCredential().Password
             }
 
-            $sqlQuery = @"
-
-"@
+            $sqlQuery = "SELECT [webapp_id], [notifyee_id] FROM notificationalerts WHERE webapp_id = $WebAppId"
 
             if ($PSBoundParameters.ContainsKey("Credential")) {
 
+                $SQLLoginUserName = $Credential.UserName
+                $SQLLoginPassword = $Credential.GetNetworkCredential().Password
+
                 try {
                     Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $UserName -Password $SQLPass -OutputAs DataRows -AbortOnError
+                    $NotifyeeIdsObj = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                     Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
                 } catch {
                     Write-Host "Failed to Execute Query" -ForegroundColor Red
@@ -96,11 +97,47 @@ function Send-WAMNotification {
 
                 try {
                     Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                    Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                    $NotifyeeIdsObj = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
                 } catch {
                     Write-Host "Failed to Execute Query" -ForegroundColor Red
                     $Error[0]
                 }
+            }
+
+            Foreach ($Nid in $NotifyeeIdsObj) {
+                $RecipientId = $Nid.notifyee_id
+
+                $sqlQuery = @"
+                SELECT        dbo.notifyee.*, dbo.emailconfig.*, dbo.notificationalerts.webapp_id, dbo.notificationalerts.notifyee_id
+                FROM            dbo.notifyee INNER JOIN
+                         dbo.emailconfig ON dbo.notifyee.notifysystem_id = dbo.emailconfig.notifysystem_id INNER JOIN
+                         dbo.notificationalerts ON dbo.notifyee.notification_id = dbo.notificationalerts.notifyee_id CROSS JOIN
+                         dbo.notificationsystem
+                WHERE        (dbo.notificationalerts.notifyee_id = 1)
+"@
+                if ($PSBoundParameters.ContainsKey("Credential")) {
+
+                    try {
+                        Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
+                        $AlertRecipientsObj = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                        Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
+                    } catch {
+                        Write-Host "Failed to Execute Query" -ForegroundColor Red
+                        $Error[0]
+                    }
+
+                } else {
+
+                    try {
+                        Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
+                        $AlertRecipientsObj = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
+                    } catch {
+                        Write-Host "Failed to Execute Query" -ForegroundColor Red
+                        $Error[0]
+                    }
+
+                }
+
             }
 
             $FromFullAddress = "$FromName <$FromAddress>"
