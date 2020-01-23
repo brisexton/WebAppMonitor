@@ -174,7 +174,7 @@ function New-WAMNotification {
 
             try {
                 Write-Verbose "Checking for existing target address named $Destination in the $DatabaseName database on $ServerInstance with specified credentials."
-                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                 if ($Result.Count -ige 1) {
                     Write-Host "The target address $Destination already exists in the database."
                     throw;
@@ -187,7 +187,7 @@ function New-WAMNotification {
         } else {
             try {
                 Write-Verbose "Checking for existing target address named $Destination in the $DatabaseName database on $ServerInstance with specified credentials."
-                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
+                $Result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -OutputAs DataRows -AbortOnError
                 if ($Result.Count -ige 1) {
                     Write-Host "The target address $Destination already exists in the database."
                     throw;
@@ -229,15 +229,23 @@ function New-WAMNotification {
             "ByObject" {
                 $WebAppId = $WebAppObject.WebAppId
                 $sqlQuery = "INSERT INTO dbo.notificationalerts (webapp_id, notifyee_id) VALUES ( $WebAppId, $notifyeeId )"
+                break;
             }
             "ById" {
-
-
+                $sqlQuery = "INSERT INTO dbo.notificationalerts (webapp_id, notifyee_id) VALUES ( $WebAppId, $notifyeeId )"
+                break;
             }
             "ByName" {
-                $sqlQuery = "SELECT * FROM [dbo].[webapps] WHERE name LIKE %$Name%"
+                Write-Error -Message "This isn't setup yet." -Category NotImplemented
+                throw;
+                $sqlQuery = "SELECT * FROM [dbo].[webapps] WHERE name LIKE `'%$Name%`';"
+                break;
             }
-            "All" { $sqlQuery = 'SELECT * FROM [dbo].[webapps]'; break; }
+            "All" {
+                Write-Error -Message "This isn't setup yet." -Category NotImplemented
+                throw;
+                $sqlQuery = 'SELECT * FROM [dbo].[webapps]'; break;
+            }
             default { Write-Host "DEFAULT HIT" -ForegroundColor Red; throw }
         }
 
@@ -246,11 +254,8 @@ function New-WAMNotification {
             try {
 
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
-
-
-
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
                 $Error[0]
@@ -258,7 +263,7 @@ function New-WAMNotification {
         } else {
             try {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-
+                Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to insert data."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
