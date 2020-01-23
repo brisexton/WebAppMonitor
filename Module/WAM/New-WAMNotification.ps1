@@ -198,6 +198,8 @@ function New-WAMNotification {
             }
         }
 
+        $sqlQueryGetNotifyId = "SELECT [notification_id], [notification_targetaddress] FROM dbo.notifyee WHERE notification_targetaddress LIKE `'%$Destination%`'"
+
 
         if ($PSBoundParameters.ContainsKey("Credential")) {
             try {
@@ -205,7 +207,7 @@ function New-WAMNotification {
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to Execute Query with specified credential."
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with specified credential."
-                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError).notification_id
+                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryGetNotifyId -Username $SQLLoginUserName -Password $SQLLoginPassword -OutputAs DataRows -AbortOnError).notification_id
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to retrieve the NotifyeeID with specified credential."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
@@ -216,8 +218,8 @@ function New-WAMNotification {
                 Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
                 Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQuery -OutputAs DataRows -AbortOnError
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to insert data."
-                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication"
-                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryCheckExisting -OutputAs DataRows -AbortOnError).notification_id
+                Write-Verbose "Attempting to connect to database $DatabaseName on server $ServerInstance with Windows Authentication to retreive no"
+                $notifyeeId = [int](Invoke-Sqlcmd -ServerInstance $ServerInstance -Database $DatabaseName -Query $sqlQueryGetNotifyId -OutputAs DataRows -AbortOnError).notification_id
                 Write-Verbose "Successfully Connected to Database $DatabaseName on Server $SQLInstance to retrieve the NotifyeeID."
             } catch {
                 Write-Host "Failed to Execute Query" -ForegroundColor Red
